@@ -1,0 +1,5 @@
+export APP_ID="weops_saas"
+export APP_TOKEN="166e8c8b-41ba-4e35-85ea-d4bb4864cf82"
+export RUN_VER="open"
+export BK_URL="http://paas.weops.com"
+export BK_PAAS_HOST="http://paas.weops.com"
