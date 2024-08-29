@@ -42,8 +42,20 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     "rest_framework",
     # "version_log",
-    "apps.core",
 )
+
+# 获取 apps 目录下的所有子目录名称
+APPS_DIR = os.path.join(BASE_DIR, "apps")
+if os.path.exists(APPS_DIR):
+    app_folders = [
+        name
+        for name in os.listdir(APPS_DIR)
+        if os.path.isdir(os.path.join(APPS_DIR, name)) and name != "__pycache__"
+    ]
+else:
+    app_folders = []
+INSTALLED_APPS += tuple(f"apps.{app}" for app in app_folders)
+
 ASGI_APPLICATION = "asgi.application"
 
 CELERY_IMPORTS = ()
