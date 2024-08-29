@@ -5,8 +5,15 @@ from django_celery_beat.models import CrontabSchedule, IntervalSchedule, Periodi
 
 class CeleryUtils:
     @staticmethod
-    def create_or_update_periodic_task(name, crontab=None, interval=None, task=None, args=None, kwargs=None,
-                                       enabled=True):
+    def create_or_update_periodic_task(
+        name,
+        crontab=None,
+        interval=None,
+        task=None,
+        args=None,
+        kwargs=None,
+        enabled=True,
+    ):
         """
         创建或更新周期任务
         :param name: 任务名称
@@ -26,18 +33,22 @@ class CeleryUtils:
                 month_of_year=month_of_year,
                 day_of_week=day_of_week,
             )
-            schedule, _ = CrontabSchedule.objects.get_or_create(**kwargs, defaults=kwargs)
+            schedule, _ = CrontabSchedule.objects.get_or_create(
+                **kwargs, defaults=kwargs
+            )
         elif interval:
-            kwargs = dict(every=interval, period='seconds')
-            schedule, _ = IntervalSchedule.objects.get_or_create(**kwargs, defaults=kwargs)
+            kwargs = dict(every=interval, period="seconds")
+            schedule, _ = IntervalSchedule.objects.get_or_create(
+                **kwargs, defaults=kwargs
+            )
         else:
-            raise ValueError('Either crontab or interval must be provided')
+            raise ValueError("Either crontab or interval must be provided")
 
         defaults = dict(
             name=name,
             task=task,
-            args=json.dumps(args) if args else '[]',
-            kwargs=json.dumps(kwargs) if kwargs else '{}',
+            args=json.dumps(args) if args else "[]",
+            kwargs=json.dumps(kwargs) if kwargs else "{}",
             enabled=enabled,
             schedule=schedule,
         )

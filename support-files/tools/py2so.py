@@ -10,7 +10,9 @@ ROOT_PATH = os.path.abspath("")
 PROJECT_NAME = ROOT_PATH.split("/")[-1]
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--ignore", default=[], nargs="+", help="ignore files for compile.")
+parser.add_argument(
+    "-i", "--ignore", default=[], nargs="+", help="ignore files for compile."
+)
 parser.add_argument("-d", "--dir", default="dist", help="result directory.")
 parser.add_argument("-v", "--version", default=3, help="python version.")
 parser.add_argument("-c", "--copy_py", default=[], nargs="+", help="copy py files.")
@@ -50,7 +52,9 @@ def copy_ignore():
             elif suffix == ".py":
                 continue
         src = os.path.join(ROOT_PATH, file)
-        dst = os.path.join(ROOT_PATH, os.path.join(args.dir, file.replace(ROOT_PATH, "", 1)))
+        dst = os.path.join(
+            ROOT_PATH, os.path.join(args.dir, file.replace(ROOT_PATH, "", 1))
+        )
         dir = "/".join(dst.split("/")[:-1])
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -76,8 +80,16 @@ def build():
     dist_temp = os.path.join(os.path.join("", args.dir), "temp")
     try:
         setup(
-            ext_modules=cythonize(module_list, compiler_directives={"language_level": args.version}),
-            script_args=["build_ext", "-b", os.path.join("", args.dir), "-t", dist_temp],
+            ext_modules=cythonize(
+                module_list, compiler_directives={"language_level": args.version}
+            ),
+            script_args=[
+                "build_ext",
+                "-b",
+                os.path.join("", args.dir),
+                "-t",
+                dist_temp,
+            ],
         )
     except Exception as e:
         print("Error: ", e)

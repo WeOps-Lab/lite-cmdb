@@ -1,12 +1,12 @@
+from functools import wraps
+
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ViewSet
 
-from functools import wraps
-
 
 def login_exempt(view_func):
-    """"Mark a view function as being exempt from login view protection"""
+    """ "Mark a view function as being exempt from login view protection"""
 
     def wrapped_view(*args, **kwargs):
         return view_func(*args, **kwargs)
