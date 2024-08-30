@@ -22,9 +22,4 @@ class BaseAppException(Exception):
         return self.data
 
     def response_data(self):
-        return {
-            "result": False,
-            "code": self.ERROR_CODE,
-            "message": self.message,
-            "data": self.render_data(),
-        }
+        return {"result": False, "code": self.ERROR_CODE, "message": self.message, "data": self.render_data()}

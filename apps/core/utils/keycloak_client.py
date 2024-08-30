@@ -1,6 +1,4 @@
-import json
 import logging
-import traceback
 
 from keycloak import KeycloakAdmin, KeycloakOpenID
 from singleton_decorator import singleton
@@ -115,38 +113,7 @@ class KeyCloakClient:
         try:
             openid_client = self.get_openid_client()
             token = openid_client.token(username, password)
-            return UserTokenEntity(
-                token=token["access_token"], error_message="", success=True
-            )
+            return UserTokenEntity(token=token["access_token"], error_message="", success=True)
         except Exception as e:
             self.logger.error(e)
             return UserTokenEntity(token=None, error_message="用户名密码不匹配", success=False)
-
-    def create_user(self, username, password, email, lastname, role_name) -> bool:
-        try:
-            role = self.realm_client.get_realm_role(role_name)
-            user = {
-                "username": username,
-                "credentials": [
-                    {"value": password, "type": "password", "temporary": False}
-                ],
-                "email": email,
-                "lastName": lastname,
-                "enabled": True,
-            }
-            user_id = self.realm_client.create_user(user, True)
-            self.realm_client.assign_realm_roles(user_id, role)
-            return True
-        except Exception as e:
-            traceback.print_exception(e)
-            return False
-
-    def import_realm_from_file(self, realm_config_path: str) -> bool:
-        try:
-            with open(realm_config_path, "r", encoding="utf8") as realm_config_file:
-                realm_config = json.load(realm_config_file)
-            self.admin_client.create_realm(payload=realm_config, skip_exists=True)
-            return True
-        except Exception as e:
-            self.logger.error(e)
-            return False

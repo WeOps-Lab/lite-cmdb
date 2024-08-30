@@ -109,10 +109,9 @@ cp ./.env.example .env
 | CELERY_BROKER_URL            |       | redis://localhost:6379                          | Celery任务队列的代理URL   |
 | CELERY_RESULT_BACKEND        |       | redis://localhost:6379                          | Celery任务结果的后端存储URL |
 | CELERY_BEAT_SCHEDULER        |       | django_celery_beat.schedulers:DatabaseScheduler | Celery的定时任务调度器     |
-| KEYCLOAK_URL                 |       |                                                 | KeyCloak地址         |
-| KEYCLOAK_ADMIN_USERNAME      |       |                                                 | KeyCloak管理员用户名     |
-| KEYCLOAK_ADMIN_PASSWORD      |       |                                                 | KeyCloak管理员密码      |
+| KEYCLOAK_URL_API             |       |                                                 | KeyCloak API地址     |
 | KEYCLOAK_REALM               |       |                                                 | KeyCloak Realm     |
 | KEYCLOAK_CLIENT_ID           |       |                                                 | KeyCloak客户端ID      |
-| KEYCLOAK_CLIENT_SECRET_KEY   |       |                                                 | KeyCloak Client 秘钥 |
+| KEYCLOAK_ADMIN_USERNAME      |       |                                                 | KeyCloak管理员用户名     |
+| KEYCLOAK_ADMIN_PASSWORD      |       |                                                 | KeyCloak管理员密码      |
 | REDIS_CACHE_URL              |       |                                                 | Django Redis缓存URL  |

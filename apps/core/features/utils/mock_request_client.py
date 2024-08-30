@@ -27,45 +27,25 @@ class MockRequestClient:
         return response.json()
 
     def post(self, url, data, role="admin"):
-        headers = {
-            "Authorization": f"{self.admin_token_info.token}",
-            "Content-Type": "application/json",
-        }
-        response = requests.post(
-            f"{self.test_base_url}/{url}", json=data, headers=headers
-        )
+        headers = {"Authorization": f"{self.admin_token_info.token}", "Content-Type": "application/json"}
+        response = requests.post(f"{self.test_base_url}/{url}", json=data, headers=headers)
         response.raise_for_status()
         return response.json()
 
     def put(self, url, data, role="admin"):
-        headers = {
-            "Authorization": f"{self.admin_token_info.token}",
-            "Content-Type": "application/json",
-        }
-        response = requests.put(
-            f"{self.test_base_url}/{url}", json=data, headers=headers
-        )
+        headers = {"Authorization": f"{self.admin_token_info.token}", "Content-Type": "application/json"}
+        response = requests.put(f"{self.test_base_url}/{url}", json=data, headers=headers)
         response.raise_for_status()
         return response.json()
 
     def delete(self, url, data=None, role="admin"):
-        headers = {
-            "Authorization": f"{self.admin_token_info.token}",
-            "Content-Type": "application/json",
-        }
-        response = requests.delete(
-            f"{self.test_base_url}/{url}", json=data, headers=headers
-        )
+        headers = {"Authorization": f"{self.admin_token_info.token}", "Content-Type": "application/json"}
+        response = requests.delete(f"{self.test_base_url}/{url}", json=data, headers=headers)
         response.raise_for_status()
         return response.json()
 
     def patch(self, url, data, role="admin"):
-        headers = {
-            "Authorization": f"{self.admin_token_info.token}",
-            "Content-Type": "application/json",
-        }
-        response = requests.patch(
-            f"{self.test_base_url}/{url}", json=data, headers=headers
-        )
+        headers = {"Authorization": f"{self.admin_token_info.token}", "Content-Type": "application/json"}
+        response = requests.patch(f"{self.test_base_url}/{url}", json=data, headers=headers)
         response.raise_for_status()
         return response.json()

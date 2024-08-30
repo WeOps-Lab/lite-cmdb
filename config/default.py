@@ -22,6 +22,7 @@ LANGUAGES = (
 HTTP_LANGUAGE = "HTTP_ACCEPT_LANGUAGE"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 2
 SESSION_COOKIE_NAME = f"{APP_CODE}_sessionid"
+LOGIN_CACHE_EXPIRED = 60 * 60
 # CSRF配置
 CSRF_COOKIE_NAME = f"{APP_CODE}_csrftoken"
 
@@ -48,9 +49,7 @@ INSTALLED_APPS = (
 APPS_DIR = os.path.join(BASE_DIR, "apps")
 if os.path.exists(APPS_DIR):
     app_folders = [
-        name
-        for name in os.listdir(APPS_DIR)
-        if os.path.isdir(os.path.join(APPS_DIR, name)) and name != "__pycache__"
+        name for name in os.listdir(APPS_DIR) if os.path.isdir(os.path.join(APPS_DIR, name)) and name != "__pycache__"
     ]
 else:
     app_folders = []
@@ -73,7 +72,7 @@ MIDDLEWARE = (
     "django.middleware.locale.LocaleMiddleware",
     "apps.core.middlewares.app_exception_middleware.AppExceptionMiddleware",
     "apps.core.middlewares.drf_middleware.DisableCSRFMiddleware",
-    # 'apps.core.middlewares.keycloak_auth_middleware.KeyCloakAuthMiddleware',
+    "apps.core.middlewares.keycloak_auth_middleware.KeyCloakAuthMiddleware",
 )
 
 ROOT_URLCONF = "urls"
@@ -177,14 +176,12 @@ REST_FRAMEWORK = {
 
 AUTH_TOKEN_HEADER_NAME = "HTTP_AUTHORIZATION"
 
-# keycladk配置
-KEYCLOAK_URL = os.getenv("KEYCLOAK_URL")
+# keycloak配置
 KEYCLOAK_URL_API = os.getenv("KEYCLOAK_URL_API")
-KEYCLOAK_ADMIN_USERNAME = os.getenv("KEYCLOAK_ADMIN_USERNAME")
-KEYCLOAK_ADMIN_PASSWORD = os.getenv("KEYCLOAK_ADMIN_PASSWORD")
 KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM")
 KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID")
-
+KEYCLOAK_ADMIN_USERNAME = os.getenv("KEYCLOAK_ADMIN_USERNAME")
+KEYCLOAK_ADMIN_PASSWORD = os.getenv("KEYCLOAK_ADMIN_PASSWORD")
 # 日志配置
 if DEBUG:
     log_dir = os.path.join(os.path.dirname(BASE_DIR), "logs", APP_CODE)
