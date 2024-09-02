@@ -38,3 +38,6 @@ django-import-export==3.3.6
 antlr4_python3_runtime==4.11.1
 
 #apache-age-python==0.0.7
+
+neo4j==5.23.1
+hvac==2.3.0
