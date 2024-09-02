@@ -98,3 +98,6 @@ CREDENTIAL = "credential"
 
 # 凭据实例关联标签
 CREDENTIAL_ASSOCIATION = "credential_association"
+
+# 凭据类型
+CREDENTIAL_TYPE = {}

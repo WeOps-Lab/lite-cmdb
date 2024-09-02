@@ -25,3 +25,7 @@ class HvacClient(object):
         if not secret:
             raise Exception(f"[vault read secret error] path:{path},result:{result}")
         return secret
+
+    def delete_secret(self, path):
+        """删除secret"""
+        self.client.secrets.kv.v2.delete_metadata_and_all_versions(path)
