@@ -15,9 +15,7 @@ class ClassificationManage(object):
         """
         with Neo4jClient() as ag:
             exist_items, _ = ag.query_entity(CLASSIFICATION, [])
-            result = ag.create_entity(
-                CLASSIFICATION, data, CREATE_CLASSIFICATION_CHECK_ATTR_MAP, exist_items
-            )
+            result = ag.create_entity(CLASSIFICATION, data, CREATE_CLASSIFICATION_CHECK_ATTR_MAP, exist_items)
         return result
 
     @staticmethod
@@ -45,7 +43,7 @@ class ClassificationManage(object):
                 "type": "str=",
                 "value": classification_id,
             }
-            _, model_count = ag.query_entity(MODEL, [model_query])
+            _, model_count = ag.query_entity(MODEL, [model_query], page={"skip": 0, "limit": 1})
             if model_count > 0:
                 raise Exception("classification is used")
 
