@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from apps.core.utils.keycloak_client import KeyCloakClient
 from apps.core.utils.web_utils import WebUtils
 
-cache = caches["login_db"]
+cache = caches["db"]
 
 
 class KeyCloakAuthMiddleware(MiddlewareMixin):
