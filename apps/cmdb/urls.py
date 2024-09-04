@@ -2,6 +2,7 @@ from rest_framework import routers
 
 from apps.cmdb.views.change_record import ChangeRecordViewSet
 from apps.cmdb.views.classfication import ClassificationViewSet
+from apps.cmdb.views.credential import CredentialViewSet
 from apps.cmdb.views.instance import InstanceViewSet
 from apps.cmdb.views.model import ModelViewSet
 
@@ -10,5 +11,6 @@ router.register(r"api/classification", ClassificationViewSet, basename="classifi
 router.register(r"api/model", ModelViewSet, basename="model")
 router.register(r"api/instance", InstanceViewSet, basename="instance")
 router.register(r"api/change_record", ChangeRecordViewSet, basename="change_record")
+router.register(r"api/credential", CredentialViewSet, basename="credential")
 
 urlpatterns = router.urls

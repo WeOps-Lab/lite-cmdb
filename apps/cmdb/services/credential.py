@@ -1,5 +1,5 @@
-import datetime
 import uuid
+from datetime import datetime, timezone
 
 from apps.cmdb.constants import CREDENTIAL, CREDENTIAL_TYPE
 from apps.cmdb.graph.neo4j import Neo4jClient
@@ -26,7 +26,7 @@ class CredentialManage(object):
                 order=order,
             )
 
-        return inst_list, count
+        return dict(items=inst_list, count=count)
 
     @staticmethod
     def vault_detail(_id: int):
@@ -56,9 +56,8 @@ class CredentialManage(object):
         """创建凭据"""
         path = uuid.uuid4().hex
         HvacClient().set_secret(path, data)
-        info = dict(
-            credential_type=credential_type, name=data.get("name"), update_time=datetime.datetime.now(), path=path
-        )
+        now_time = datetime.now(timezone.utc).isoformat()
+        info = dict(credential_type=credential_type, name=data.get("name"), update_time=now_time, path=path)
         with Neo4jClient() as ag:
             result = ag.create_entity(CREDENTIAL, info, {}, [], operator)
         return result
@@ -73,8 +72,8 @@ class CredentialManage(object):
         for key, value in data.items():
             secret[key] = value
         HvacClient().set_secret(cre.get("path"), secret)
-
-        update_data = dict(update_time=datetime.datetime.now(), name=secret.get("name"))
+        now_time = datetime.now(timezone.utc).isoformat()
+        update_data = dict(update_time=now_time, name=secret.get("name"))
         with Neo4jClient() as ag:
             _ = ag.set_entity_properties(CREDENTIAL, [_id], update_data, {}, [], False)
 

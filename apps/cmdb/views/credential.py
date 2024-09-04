@@ -15,7 +15,7 @@ class CredentialViewSet(viewsets.ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "credential_type": openapi.Schema(type=openapi.TYPE_STRING, description="凭据类型"),
-                "data": openapi.Schema(type=openapi.TYPE_STRING, description="凭据数据"),
+                "data": openapi.Schema(type=openapi.TYPE_OBJECT, description="凭据数据"),
             },
             required=["credential_type", "data"],
         ),
