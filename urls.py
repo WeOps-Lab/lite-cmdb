@@ -10,7 +10,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
 an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 """
+import traceback
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
@@ -18,7 +20,6 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("i18n/", include("django.conf.urls.i18n")),
-    path("core/", include("apps.core.urls")),
 ]
 
 if settings.DEBUG:
@@ -48,7 +49,16 @@ if settings.DEBUG:
             schema_view.with_ui("swagger", cache_timeout=0),
             name="schema-swagger-ui",
         ),  # noqa
-        path(
-            "redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
-        ),  # noqa
+        path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),  # noqa
     ]
+
+for app_config in apps.get_app_configs():
+    app_name = app_config.name
+    try:
+        # app_name是apps.开头的，就import这个app的urls.py
+        if app_name.startswith("apps."):
+            urls_module = __import__(f"{app_name}.urls", fromlist=["urlpatterns"])
+            urlpatterns.append(path("", include(urls_module)))
+
+    except ImportError as e:  # noqa
+        traceback.print_exc()

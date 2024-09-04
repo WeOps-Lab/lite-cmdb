@@ -31,9 +31,12 @@ class KeyCloakAuthMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # 开发模式，默认放行
-        # if DEBUG is True:
-        #     self.set_userinfo(request, DEBUG_USERINFO)
-        #     return None
+        if settings.DEBUG:
+            default_user = {"username": "admin", "name": "admin", "email": "admin@admin.com"}
+            groups = [{"id": "2135b2b5-cbb4-4aea-8350-7329dcb6671a", "name": "admin"}]
+            self.set_userinfo(request, default_user, ["admin"], groups)
+            translation.activate("zh-Hans")
+            return None
         token = request.META.get(settings.AUTH_TOKEN_HEADER_NAME)
         if token is None:
             return WebUtils.response_401(_("please provide Token"))

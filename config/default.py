@@ -19,7 +19,6 @@ LANGUAGES = (
     ("en", "English"),
     ("zh-Hans", "简体中文"),
 )
-HTTP_LANGUAGE = "HTTP_ACCEPT_LANGUAGE"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 2
 SESSION_COOKIE_NAME = f"{APP_CODE}_sessionid"
 LOGIN_CACHE_EXPIRED = 60 * 60
@@ -27,7 +26,6 @@ LOGIN_CACHE_EXPIRED = 60 * 60
 CSRF_COOKIE_NAME = f"{APP_CODE}_csrftoken"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_URL = os.path.join("/", APP_CODE, "static/")
 # 指定翻译文件的目录
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
 
@@ -56,7 +54,7 @@ else:
 INSTALLED_APPS += tuple(f"apps.{app}" for app in app_folders)
 
 ASGI_APPLICATION = "asgi.application"
-
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CELERY_IMPORTS = ()
 
 MIDDLEWARE = (
@@ -74,14 +72,18 @@ MIDDLEWARE = (
     "apps.core.middlewares.drf_middleware.DisableCSRFMiddleware",
     "apps.core.middlewares.keycloak_auth_middleware.KeyCloakAuthMiddleware",
 )
-
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)  # this is default
 ROOT_URLCONF = "urls"
 
 DEBUG = os.getenv("DEBUG", "0") == "1"
+
+STATIC_URL = "static/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
+
 if DEBUG:
     INSTALLED_APPS += (
         "corsheaders",
-        "rest_framework_swagger",
         "drf_yasg",
     )  # noqa
     # 该跨域中间件需要放在前面
@@ -150,7 +152,9 @@ DATABASES = {
 # DRF 配置
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PERMISSION_CLASSES": (
+        # "rest_framework.permissions.IsAuthenticated",
+    ),
     "DEFAULT_PAGINATION_CLASS": "config.drf.pagination.CustomPageNumberPagination",
     "PAGE_SIZE": 10,
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
@@ -165,7 +169,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.BasicAuthentication",
+        # "rest_framework.authentication.BasicAuthentication",
     ],
     "DEFAULT_PARSER_CLASSES": [
         "rest_framework.parsers.JSONParser",
