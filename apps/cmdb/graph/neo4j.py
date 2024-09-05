@@ -98,9 +98,9 @@ class Neo4jClient:
 
         message = ""
         for attr in not_only_attr:
-            message += f"{check_attr_map[attr]}重复；"
+            message += f"{check_attr_map[attr]} exist；"
 
-        raise Exception(message)
+        raise BaseAppException(message)
 
     def check_required_attr(self, item, check_attr_map, is_update=False):
         """校验必填属性"""
@@ -117,9 +117,10 @@ class Neo4jClient:
 
         message = ""
         for attr in not_required_attr:
-            message += f"必填项{check_attr_map[attr]}为空；"
+            # 记录必填项目为空
+            message += f"{check_attr_map[attr]} is empty；"
 
-        raise Exception(message)
+        raise BaseAppException(message)
 
     def get_editable_attr(self, item, check_attr_map):
         """取可编辑属性"""
@@ -135,7 +136,7 @@ class Neo4jClient:
     ):
         # 校验必填项标签非空
         if not label:
-            raise Exception("标签为空！")
+            raise BaseAppException("label is empty")
 
         # 校验唯一属性
         self.check_unique_attr(properties, check_attr_map.get("is_only", {}), exist_items)
@@ -216,7 +217,7 @@ class Neo4jClient:
                 result.update(data=entity, success=True)
                 exist_items.append(entity)
             except Exception as e:
-                message = f"第{index + 1}条数据，{e}"
+                message = f"article {index + 1} data, {e}"
                 result.update(message=message, success=False)
             results.append(result)
         return results
@@ -239,7 +240,7 @@ class Neo4jClient:
                 edge = self._create_edge(label, a_id, a_label, b_id, b_label, edge_info, check_asst_key)
                 result.update(data=edge, success=True)
             except Exception as e:
-                message = f"第{index + 1}条数据，{e}"
+                message = f"article {index + 1} data, {e}"
                 result.update(message=message, success=False)
             results.append(result)
         return results
