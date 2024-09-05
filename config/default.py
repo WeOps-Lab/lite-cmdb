@@ -72,7 +72,7 @@ MIDDLEWARE = (
     "apps.core.middlewares.drf_middleware.DisableCSRFMiddleware",
     "apps.core.middlewares.keycloak_auth_middleware.KeyCloakAuthMiddleware",
 )
-AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)  # this is default
+AUTHENTICATION_BACKENDS = ("apps.core.backends.KeycloakAuthBackend",)  # this is default
 ROOT_URLCONF = "urls"
 
 DEBUG = os.getenv("DEBUG", "0") == "1"

@@ -117,3 +117,11 @@ class KeyCloakClient:
         except Exception as e:
             self.logger.error(e)
             return UserTokenEntity(token=None, error_message="用户名密码不匹配", success=False)
+
+    def get_user_groups(self, sub, is_admin):
+        if is_admin:
+            res = self.realm_client.get_groups()
+        else:
+            res = self.realm_client.get_user_groups(sub)
+        return_data = [{"id": i["id"], "name": i["name"]} for i in res]
+        return return_data
