@@ -5,8 +5,8 @@ RUN apt-get update -y
 RUN apt-get install -y supervisor
 
 ADD ./support-files/supervisor/app.conf  /etc/supervisor/conf.d/app.conf
-ADD ./support-files/supervisor/celery.conf  /etc/supervisor/conf.d/celery.conf
-ADD ./support-files/supervisor/beat.conf  /etc/supervisor/conf.d/beat.conf
+#ADD ./support-files/supervisor/celery.conf  /etc/supervisor/conf.d/celery.conf
+#ADD ./support-files/supervisor/beat.conf  /etc/supervisor/conf.d/beat.conf
 
 ADD . .
 
