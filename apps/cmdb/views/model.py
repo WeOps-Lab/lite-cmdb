@@ -16,15 +16,9 @@ class ModelViewSet(viewsets.ViewSet):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "classification_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型分类ID"
-                ),
-                "model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型ID"
-                ),
-                "model_name": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型名称"
-                ),
+                "classification_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型分类ID"),
+                "model_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型ID"),
+                "model_name": openapi.Schema(type=openapi.TYPE_STRING, description="模型名称"),
                 "icn": openapi.Schema(type=openapi.TYPE_STRING, description="图标"),
             },
             required=["classification_id", "model_id", "model_name", "icn"],
@@ -38,28 +32,15 @@ class ModelViewSet(viewsets.ViewSet):
     @swagger_auto_schema(
         operation_id="model_list",
         operation_description="查询模型",
-        manual_parameters=[
-            openapi.Parameter(
-                "model_type",
-                openapi.IN_QUERY,
-                description="模型类型",
-                type=openapi.TYPE_STRING,
-            )
-        ],
     )
     def list(self, request):
-        model_type = request.GET.get("model_type")
-        result = ModelManage.search_model(model_type)
+        result = ModelManage.search_model()
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
         operation_id="model_delete",
         operation_description="删除模型",
-        manual_parameters=[
-            openapi.Parameter(
-                "id", openapi.IN_PATH, description="模型ID", type=openapi.TYPE_STRING
-            )
-        ],
+        manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="模型ID", type=openapi.TYPE_STRING)],
     )
     @HasRole(["admin"])
     def destroy(self, request, pk: str):
@@ -75,20 +56,12 @@ class ModelViewSet(viewsets.ViewSet):
     @swagger_auto_schema(
         operation_id="model_update",
         operation_description="更改模型信息",
-        manual_parameters=[
-            openapi.Parameter(
-                "id", openapi.IN_PATH, description="模型ID", type=openapi.TYPE_STRING
-            )
-        ],
+        manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="模型ID", type=openapi.TYPE_STRING)],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "classification_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型分类ID"
-                ),
-                "model_name": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型名称"
-                ),
+                "classification_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型分类ID"),
+                "model_name": openapi.Schema(type=openapi.TYPE_STRING, description="模型名称"),
                 "icn": openapi.Schema(type=openapi.TYPE_STRING, description="图标"),
             },
         ),
@@ -106,15 +79,9 @@ class ModelViewSet(viewsets.ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "asst_id": openapi.Schema(type=openapi.TYPE_STRING, description="关联关系"),
-                "src_model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型ID"
-                ),
-                "dst_model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型名称"
-                ),
-                "model_asst_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型关联关系"
-                ),
+                "src_model_id": openapi.Schema(type=openapi.TYPE_STRING, description="源模型ID"),
+                "dst_model_id": openapi.Schema(type=openapi.TYPE_STRING, description="目标模型ID"),
+                "model_asst_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型关联关系"),
                 "mapping": openapi.Schema(type=openapi.TYPE_STRING, description="约束"),
             },
             required=[
@@ -149,9 +116,7 @@ class ModelViewSet(viewsets.ViewSet):
         ],
     )
     @HasRole(["admin"])
-    @action(
-        detail=False, methods=["delete"], url_path="association/(?P<model_asst_id>.+?)"
-    )
+    @action(detail=False, methods=["delete"], url_path="association/(?P<model_asst_id>.+?)")
     def model_association_delete(self, request, model_asst_id: str):
         association_info = ModelManage.model_association_info_search(model_asst_id)
         ModelManage.model_association_delete(association_info.get("_id"))
@@ -177,9 +142,7 @@ class ModelViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["get"], url_path="(?P<model_id>.+?)/association")
     def model_association_list(self, request, model_id: str):
-        result = ModelManage.model_association_search(
-            model_id, request.GET.get("model_type")
-        )
+        result = ModelManage.model_association_search(model_id, request.GET.get("model_type"))
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
@@ -197,25 +160,13 @@ class ModelViewSet(viewsets.ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "attr_id": openapi.Schema(type=openapi.TYPE_STRING, description="属性ID"),
-                "attr_name": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="属性名称"
-                ),
-                "attr_type": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="属性类型"
-                ),
-                "is_only": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="是否唯一"
-                ),
-                "is_required": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="必填项"
-                ),
-                "editable": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="可编辑"
-                ),
+                "attr_name": openapi.Schema(type=openapi.TYPE_STRING, description="属性名称"),
+                "attr_type": openapi.Schema(type=openapi.TYPE_STRING, description="属性类型"),
+                "is_only": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="是否唯一"),
+                "is_required": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="必填项"),
+                "editable": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="可编辑"),
                 "option": openapi.Schema(type=openapi.TYPE_OBJECT, description="选项"),
-                "attr_group": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="属性分组"
-                ),
+                "attr_group": openapi.Schema(type=openapi.TYPE_STRING, description="属性分组"),
             },
         ),
     )
@@ -240,25 +191,13 @@ class ModelViewSet(viewsets.ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "attr_id": openapi.Schema(type=openapi.TYPE_STRING, description="属性ID"),
-                "attr_name": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="属性名称"
-                ),
-                "attr_type": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="属性类型"
-                ),
-                "is_only": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="是否唯一"
-                ),
-                "is_required": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="必填项"
-                ),
-                "editable": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="可编辑"
-                ),
+                "attr_name": openapi.Schema(type=openapi.TYPE_STRING, description="属性名称"),
+                "attr_type": openapi.Schema(type=openapi.TYPE_STRING, description="属性类型"),
+                "is_only": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="是否唯一"),
+                "is_required": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="必填项"),
+                "editable": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="可编辑"),
                 "option": openapi.Schema(type=openapi.TYPE_STRING, description="选项"),
-                "attr_group": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="属性分组"
-                ),
+                "attr_group": openapi.Schema(type=openapi.TYPE_STRING, description="属性分组"),
             },
         ),
     )
