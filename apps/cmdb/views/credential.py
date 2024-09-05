@@ -51,7 +51,7 @@ class CredentialViewSet(viewsets.ViewSet):
             ),
             openapi.Parameter(
                 "field",
-                openapi.IN_QUERY,
+                openapi.IN_PATH,
                 description="字段",
                 type=openapi.TYPE_STRING,
             ),
@@ -101,6 +101,6 @@ class CredentialViewSet(viewsets.ViewSet):
         manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="凭据id", type=openapi.TYPE_STRING)],
         request_body=openapi.Schema(type=openapi.TYPE_OBJECT, description="凭据数据"),
     )
-    def update(self, request, pk: str):
+    def partial_update(self, request, pk: str):
         CredentialManage.update_credential(int(pk), request.data)
         return WebUtils.response_success()
