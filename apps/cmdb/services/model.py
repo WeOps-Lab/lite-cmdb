@@ -2,7 +2,6 @@ import json
 
 from apps.cmdb.constants import (
     CREATE_MODEL_CHECK_ATTR,
-    CREDENTIAL,
     INST_NAME_INFOS,
     INSTANCE,
     MODEL,
@@ -45,12 +44,8 @@ class ModelManage(object):
         """
         model_id = data.pop("model_id", "")  # 不能更新model_id
         with Neo4jClient() as ag:
-            exist_items, _ = ag.query_entity(
-                MODEL, [{"field": "model_id", "type": "str<>", "value": model_id}]
-            )
-            model = ag.set_entity_properties(
-                MODEL, [id], data, UPDATE_MODEL_CHECK_ATTR_MAP, exist_items
-            )
+            exist_items, _ = ag.query_entity(MODEL, [{"field": "model_id", "type": "str<>", "value": model_id}])
+            model = ag.set_entity_properties(MODEL, [id], data, UPDATE_MODEL_CHECK_ATTR_MAP, exist_items)
         return model[0]
 
     @staticmethod
@@ -81,9 +76,7 @@ class ModelManage(object):
             if attr_info["attr_id"] in {i["attr_id"] for i in attrs}:
                 raise BaseAppException("model attr repetition")
             attrs.append(attr_info)
-            result = ag.set_entity_properties(
-                MODEL, [model_info["_id"]], dict(attrs=json.dumps(attrs)), {}, [], False
-            )
+            result = ag.set_entity_properties(MODEL, [model_info["_id"]], dict(attrs=json.dumps(attrs)), {}, [], False)
 
         attrs = ModelManage.parse_attrs(result[0].get("attrs", "[]"))
 
@@ -120,9 +113,7 @@ class ModelManage(object):
                     option=attr_info["option"],
                 )
 
-            result = ag.set_entity_properties(
-                MODEL, [model_info["_id"]], dict(attrs=json.dumps(attrs)), {}, [], False
-            )
+            result = ag.set_entity_properties(MODEL, [model_info["_id"]], dict(attrs=json.dumps(attrs)), {}, [], False)
 
         attrs = ModelManage.parse_attrs(result[0].get("attrs", "[]"))
 
@@ -280,7 +271,7 @@ class ModelManage(object):
         return edges[0]
 
     @staticmethod
-    def model_association_search(model_id: str, model_type=None):
+    def model_association_search(model_id: str):
         """
         查询模型所有的关联
         """
@@ -289,26 +280,7 @@ class ModelManage(object):
             {"field": "dst_model_id", "type": "str=", "value": model_id},
         ]
         with Neo4jClient() as ag:
-            edges, _ = ag.query_edge(MODEL_ASSOCIATION, query_list, param_type="OR")
-
-        # 根据模型类型过滤模型关联
-        if model_type:
-            models = ModelManage.search_model(CREDENTIAL)
-            models_set = {i["model_id"] for i in models}
-            if model_type == CREDENTIAL:
-                edges = [
-                    i
-                    for i in edges
-                    if i["src_model_id"] in models_set
-                    or i["dst_model_id"] in models_set
-                ]
-            else:
-                edges = [
-                    i
-                    for i in edges
-                    if i["src_model_id"] not in models_set
-                    and i["dst_model_id"] not in models_set
-                ]
+            edges = ag.query_edge(MODEL_ASSOCIATION, query_list, param_type="OR")
 
         return edges
 

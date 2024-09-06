@@ -44,9 +44,9 @@ class Neo4jClient:
         """将使用fetchall查询的结果转换成列表类型"""
         result = [
             {
-                "src": self.entity_to_dict((i[0][0],)),
-                "edge": self.edge_to_dict((i[0][1],)),
-                "dst": self.entity_to_dict((i[0][2],)),
+                "src": self.entity_to_dict((i[0].start_node,)),
+                "edge": self.edge_to_dict((i[0].relationships[0],)),
+                "dst": self.entity_to_dict((i[0].end_node,)),
             }
             for i in data
         ]
@@ -54,7 +54,7 @@ class Neo4jClient:
 
     def edge_to_dict(self, data: tuple):
         """将使用single查询的结果转换成字典类型"""
-        return dict(_id=data[0].id, _label=list(data[0].labels)[0], **data[0].properties)
+        return dict(_id=data[0].id, _label=data[0].type, **data[0]._properties)
 
     def format_properties(self, properties: dict):
         """将属性格式化为sql中的字符串格式"""
@@ -187,7 +187,7 @@ class Neo4jClient:
         # 校验边是否已经存在
         check_asst_val = properties.get(check_asst_key)
         edge_count = self.session.run(
-            f"MATCH (a:{a_label})-[e]-(b:{b_label}) WHERE id(a) = {a_id} AND id(b) = {b_id} AND e.{check_asst_key} = '{check_asst_val}' RETURN COUNT(n) AS count"  # noqa
+            f"MATCH (a:{a_label})-[e]-(b:{b_label}) WHERE id(a) = {a_id} AND id(b) = {b_id} AND e.{check_asst_key} = '{check_asst_val}' RETURN COUNT(e) AS count"  # noqa
         ).single()["count"]
         if edge_count > 0:
             raise BaseAppException("edge already exists")
@@ -351,6 +351,7 @@ class Neo4jClient:
         params_str = f"WHERE {params_str}" if params_str else params_str
 
         objs = self.session.run(f"MATCH p=((a)-[n{label_str}]->(b)) {params_str} RETURN p")
+
         return self.edge_to_list(objs, return_entity)
 
     def query_edge_by_id(self, id: int, return_entity: bool = False):

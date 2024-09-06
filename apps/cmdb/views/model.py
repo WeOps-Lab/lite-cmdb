@@ -81,14 +81,12 @@ class ModelViewSet(viewsets.ViewSet):
                 "asst_id": openapi.Schema(type=openapi.TYPE_STRING, description="关联关系"),
                 "src_model_id": openapi.Schema(type=openapi.TYPE_STRING, description="源模型ID"),
                 "dst_model_id": openapi.Schema(type=openapi.TYPE_STRING, description="目标模型ID"),
-                "model_asst_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型关联关系"),
                 "mapping": openapi.Schema(type=openapi.TYPE_STRING, description="约束"),
             },
             required=[
                 "asst_id",
                 "src_model_id",
                 "dst_model_id",
-                "model_asst_id",
                 "mapping",
             ],
         ),
@@ -96,10 +94,11 @@ class ModelViewSet(viewsets.ViewSet):
     @HasRole(["admin"])
     @action(detail=False, methods=["post"], url_path="association")
     def model_association_create(self, request):
+        model_asst_id = f'{request.data["src_model_id"]}_{request.data["asst_id"]}_{request.data["dst_model_id"]}'
         src_model_info = ModelManage.search_model_info(request.data["src_model_id"])
         dst_model_info = ModelManage.search_model_info(request.data["dst_model_id"])
         result = ModelManage.model_association_create(
-            src_id=src_model_info["_id"], dst_id=dst_model_info["_id"], **request.data
+            src_id=src_model_info["_id"], dst_id=dst_model_info["_id"], model_asst_id=model_asst_id, **request.data
         )
         return WebUtils.response_success(result)
 
@@ -132,17 +131,11 @@ class ModelViewSet(viewsets.ViewSet):
                 description="模型ID",
                 type=openapi.TYPE_STRING,
             ),
-            openapi.Parameter(
-                "model_type",
-                openapi.IN_QUERY,
-                description="模型类型",
-                type=openapi.TYPE_STRING,
-            ),
         ],
     )
     @action(detail=False, methods=["get"], url_path="(?P<model_id>.+?)/association")
     def model_association_list(self, request, model_id: str):
-        result = ModelManage.model_association_search(model_id, request.GET.get("model_type"))
+        result = ModelManage.model_association_search(model_id)
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
