@@ -265,7 +265,7 @@ class ModelManage(object):
                 "type": "str=",
                 "value": model_asst_id,
             }
-            edges, _ = ag.query_edge(MODEL_ASSOCIATION, [query_data])
+            edges = ag.query_edge(MODEL_ASSOCIATION, [query_data])
         if len(edges) == 0:
             return {}
         return edges[0]
