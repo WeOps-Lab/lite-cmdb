@@ -1,7 +1,7 @@
 FROM python:3.10
 WORKDIR /apps
 
-RUN apt-get update -y && apt-get install -y supervisor
+RUN apt-get update -y && apt-get install -y supervisor vim
 
 ADD . .
 
