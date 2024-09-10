@@ -158,7 +158,9 @@ class ModelViewSet(viewsets.ViewSet):
                 "is_only": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="是否唯一"),
                 "is_required": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="必填项"),
                 "editable": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="可编辑"),
-                "option": openapi.Schema(type=openapi.TYPE_OBJECT, description="选项"),
+                "option": openapi.Schema(
+                    type=openapi.TYPE_ARRAY, description="选项", items=openapi.Schema(type=openapi.TYPE_STRING)
+                ),
                 "attr_group": openapi.Schema(type=openapi.TYPE_STRING, description="属性分组"),
             },
         ),

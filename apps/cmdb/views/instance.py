@@ -22,13 +22,9 @@ class InstanceViewSet(viewsets.ViewSet):
                     description="查询条件列表",
                 ),
                 "page": openapi.Schema(type=openapi.TYPE_INTEGER, description="第几页"),
-                "page_size": openapi.Schema(
-                    type=openapi.TYPE_INTEGER, description="每页条目数"
-                ),
+                "page_size": openapi.Schema(type=openapi.TYPE_INTEGER, description="每页条目数"),
                 "order": openapi.Schema(type=openapi.TYPE_STRING, description="排序"),
-                "model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型ID"
-                ),
+                "model_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型ID"),
                 "role": openapi.Schema(type=openapi.TYPE_STRING, description="角色"),
             },
             required=["model_id"],
@@ -36,11 +32,9 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     @action(methods=["post"], detail=False)
     def search(self, request):
-        page, page_size = int(request.data.get("page", 1)), int(
-            request.data.get("page_size", 10)
-        )
+        page, page_size = int(request.data.get("page", 1)), int(request.data.get("page_size", 10))
         insts, count = InstanceManage.instance_list(
-            request.META.get(AUTH_TOKEN_HEADER_NAME),
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             request.data["model_id"],
             request.data.get("query_list", []),
             page,
@@ -53,9 +47,7 @@ class InstanceViewSet(viewsets.ViewSet):
         operation_id="instance_detail",
         operation_description="查询实例信息",
         manual_parameters=[
-            openapi.Parameter(
-                "id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_INTEGER
-            ),
+            openapi.Parameter("id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_INTEGER),
         ],
     )
     def retrieve(self, request, pk: str):
@@ -68,12 +60,8 @@ class InstanceViewSet(viewsets.ViewSet):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型ID"
-                ),
-                "instance_info": openapi.Schema(
-                    type=openapi.TYPE_OBJECT, description="实例信息"
-                ),
+                "model_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型ID"),
+                "instance_info": openapi.Schema(type=openapi.TYPE_OBJECT, description="实例信息"),
             },
             required=["model_id", "instance_info"],
         ),
@@ -89,15 +77,11 @@ class InstanceViewSet(viewsets.ViewSet):
     @swagger_auto_schema(
         operation_id="instance_delete",
         operation_description="删除实例",
-        manual_parameters=[
-            openapi.Parameter(
-                "id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_INTEGER
-            )
-        ],
+        manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_INTEGER)],
     )
     def destroy(self, request, pk: int):
         InstanceManage.instance_batch_delete(
-            request.META.get(AUTH_TOKEN_HEADER_NAME),
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             [int(pk)],
             request.userinfo.get("username", ""),
         )
@@ -114,7 +98,7 @@ class InstanceViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"], url_path="batch_delete")
     def instance_batch_delete(self, request):
         InstanceManage.instance_batch_delete(
-            request.META.get(AUTH_TOKEN_HEADER_NAME),
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             request.data,
             request.userinfo.get("username", ""),
         )
@@ -130,7 +114,7 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     def partial_update(self, request, pk: int):
         inst = InstanceManage.instance_update(
-            request.META.get(AUTH_TOKEN_HEADER_NAME),
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             int(pk),
             request.data,
             request.userinfo.get("username", ""),
@@ -147,9 +131,7 @@ class InstanceViewSet(viewsets.ViewSet):
                     type=openapi.TYPE_ARRAY,
                     items=openapi.Schema(type=openapi.TYPE_INTEGER, description="实例ID"),
                 ),
-                "update_data": openapi.Schema(
-                    type=openapi.TYPE_OBJECT, description="要更新的数据"
-                ),
+                "update_data": openapi.Schema(type=openapi.TYPE_OBJECT, description="要更新的数据"),
             },
             required=["inst_ids", "update_data"],
         ),
@@ -157,7 +139,7 @@ class InstanceViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"], url_path="batch_update")
     def instance_batch_update(self, request):
         InstanceManage.batch_instance_update(
-            request.META.get(AUTH_TOKEN_HEADER_NAME),
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             request.data["inst_ids"],
             request.data["update_data"],
             request.userinfo.get("username", ""),
@@ -170,24 +152,12 @@ class InstanceViewSet(viewsets.ViewSet):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "model_asst_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型关联关系"
-                ),
-                "src_model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="源模型ID"
-                ),
-                "dst_model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="目标模型ID"
-                ),
-                "src_inst_id": openapi.Schema(
-                    type=openapi.TYPE_INTEGER, description="源模型实例ID"
-                ),
-                "dst_inst_id": openapi.Schema(
-                    type=openapi.TYPE_INTEGER, description="目标模型实例ID"
-                ),
-                "asst_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="目标模型实例ID"
-                ),
+                "model_asst_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型关联关系"),
+                "src_model_id": openapi.Schema(type=openapi.TYPE_STRING, description="源模型ID"),
+                "dst_model_id": openapi.Schema(type=openapi.TYPE_STRING, description="目标模型ID"),
+                "src_inst_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="源模型实例ID"),
+                "dst_inst_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="目标模型实例ID"),
+                "asst_id": openapi.Schema(type=openapi.TYPE_STRING, description="目标模型实例ID"),
             },
             required=[
                 "model_asst_id",
@@ -201,25 +171,17 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["post"], url_path="association")
     def instance_association_create(self, request):
-        asso = InstanceManage.instance_association_create(
-            request.data, request.userinfo.get("username", "")
-        )
+        asso = InstanceManage.instance_association_create(request.data, request.userinfo.get("username", ""))
         return WebUtils.response_success(asso)
 
     @swagger_auto_schema(
         operation_id="instance_association_delete",
         operation_description="删除实例关联",
-        manual_parameters=[
-            openapi.Parameter(
-                "id", openapi.IN_PATH, description="实例关联ID", type=openapi.TYPE_INTEGER
-            )
-        ],
+        manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="实例关联ID", type=openapi.TYPE_INTEGER)],
     )
     @action(detail=False, methods=["delete"], url_path="association/(?P<id>.+?)")
     def instance_association_delete(self, request, id: int):
-        InstanceManage.instance_association_delete(
-            int(id), request.userinfo.get("username", "")
-        )
+        InstanceManage.instance_association_delete(int(id), request.userinfo.get("username", ""))
         return WebUtils.response_success()
 
     @swagger_auto_schema(
@@ -232,9 +194,7 @@ class InstanceViewSet(viewsets.ViewSet):
                 description="模型ID",
                 type=openapi.TYPE_STRING,
             ),
-            openapi.Parameter(
-                "inst_id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_NUMBER
-            ),
+            openapi.Parameter("inst_id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_NUMBER),
         ],
     )
     @action(
@@ -243,9 +203,7 @@ class InstanceViewSet(viewsets.ViewSet):
         url_path="association_instance_list/(?P<model_id>.+?)/(?P<inst_id>.+?)",
     )
     def instance_association_instance_list(self, request, model_id: str, inst_id: int):
-        asso_insts = InstanceManage.instance_association_instance_list(
-            model_id, int(inst_id)
-        )
+        asso_insts = InstanceManage.instance_association_instance_list(model_id, int(inst_id))
         return WebUtils.response_success(asso_insts)
 
     @swagger_auto_schema(
@@ -281,16 +239,10 @@ class InstanceViewSet(viewsets.ViewSet):
             )
         ],
     )
-    @action(
-        methods=["get"], detail=False, url_path=r"(?P<model_id>.+?)/download_template"
-    )
+    @action(methods=["get"], detail=False, url_path=r"(?P<model_id>.+?)/download_template")
     def download_template(self, request, model_id):
-        response = HttpResponse(
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-        response[
-            "Content-Disposition"
-        ] = f"attachment;filename={f'{model_id}_import_template.xlsx'}"
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = f"attachment;filename={f'{model_id}_import_template.xlsx'}"
         response.write(InstanceManage.download_import_template(model_id).read())
         return response
 
@@ -344,12 +296,8 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     @action(methods=["post"], detail=False, url_path=r"(?P<model_id>.+?)/inst_export")
     def inst_export(self, request, model_id):
-        response = HttpResponse(
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-        response[
-            "Content-Disposition"
-        ] = f"attachment;filename={f'{model_id}_import_template.xlsx'}"
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = f"attachment;filename={f'{model_id}_import_template.xlsx'}"
         response.write(InstanceManage.inst_export(model_id, request.data).read())
         return response
 
@@ -360,9 +308,7 @@ class InstanceViewSet(viewsets.ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "search": openapi.Schema(type=openapi.TYPE_STRING, description="检索内容"),
-                "model_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="模型ID"
-                ),
+                "model_id": openapi.Schema(type=openapi.TYPE_STRING, description="模型ID"),
             },
             required=["search"],
         ),
@@ -370,7 +316,7 @@ class InstanceViewSet(viewsets.ViewSet):
     @action(methods=["post"], detail=False)
     def fulltext_search(self, request):
         result = InstanceManage.fulltext_search(
-            request.META.get(AUTH_TOKEN_HEADER_NAME), request.data
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1], request.data
         )
         return WebUtils.response_success(result)
 
@@ -384,9 +330,7 @@ class InstanceViewSet(viewsets.ViewSet):
                 description="模型ID",
                 type=openapi.TYPE_STRING,
             ),
-            openapi.Parameter(
-                "inst_id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_NUMBER
-            ),
+            openapi.Parameter("inst_id", openapi.IN_PATH, description="实例ID", type=openapi.TYPE_NUMBER),
         ],
     )
     @action(
@@ -420,9 +364,7 @@ class InstanceViewSet(viewsets.ViewSet):
         result = InstanceManage.create_or_update(data)
         return WebUtils.response_success(result)
 
-    @action(
-        methods=["get"], detail=False, url_path=r"(?P<model_id>.+?)/show_field/detail"
-    )
+    @action(methods=["get"], detail=False, url_path=r"(?P<model_id>.+?)/show_field/detail")
     def get_info(self, request, model_id):
         result = InstanceManage.get_info(model_id, request.userinfo.get("username", ""))
         return WebUtils.response_success(result)
@@ -433,7 +375,5 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     @action(methods=["get"], detail=False, url_path=r"model_inst_count")
     def model_inst_count(self, request):
-        result = InstanceManage.model_inst_count(
-            request.META.get(AUTH_TOKEN_HEADER_NAME)
-        )
+        result = InstanceManage.model_inst_count(request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1])
         return WebUtils.response_success(result)
