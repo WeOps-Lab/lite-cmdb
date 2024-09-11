@@ -199,9 +199,10 @@ class ModelManage(object):
 
         if ORGANIZATION in attr_types:
             groups = KeyCloakClient().realm_client.get_groups({"search": ""})
-            groups = groups[0] if groups else []
+            # 获取默认的第一个根组织
+            group = groups[0]["subGroups"] if groups else []
             option = []
-            ModelManage.get_organization_option(groups, option)
+            ModelManage.get_organization_option(group, option)
             for attr in attrs:
                 if attr["attr_type"] == ORGANIZATION:
                     attr.update(option=option)
