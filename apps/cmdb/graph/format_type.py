@@ -68,7 +68,7 @@ def format_int_in(param):
 def format_list_in(param):
     field = param["field"]
     value = param["value"]
-    return f"n.{field} @> ARRAY{value}"
+    return f"ANY(x IN {value} WHERE x IN n.{field})"
 
 
 def id_in(param):

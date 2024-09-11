@@ -266,7 +266,7 @@ class Neo4jClient:
         id=: {"field": "id", "type": "id=", "value": 115} -> "n(id) = 115"
         id[]: {"field": "id", "type": "id[]", "value": [115,116]} -> "n(id) IN [115,116]"
 
-        list[]: {"field": "test", "type": "list[]", "value": [1,2]} -> "n.test @> ARRAY [1,2]"
+        list[]: {"field": "test", "type": "list[]", "value": [1,2]} -> "ANY(x IN value WHERE x IN n.test)"
         """
 
         params_str = ""
