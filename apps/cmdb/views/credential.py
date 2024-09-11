@@ -24,7 +24,7 @@ class CredentialViewSet(viewsets.ViewSet):
         result = CredentialManage.create_credential(
             request.data["credential_type"],
             request.data["data"],
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success(result)
 
@@ -78,7 +78,7 @@ class CredentialViewSet(viewsets.ViewSet):
         credential_type = request.GET.get("credential_type")
         result = CredentialManage.credential_list(
             credential_type,
-            request.userinfo.get("username", ""),
+            request.user.username,
             request.GET.get("page", 1),
             request.GET.get("page_size", 10),
         )

@@ -70,7 +70,7 @@ class InstanceViewSet(viewsets.ViewSet):
         inst = InstanceManage.instance_create(
             request.data.get("model_id"),
             request.data.get("instance_info"),
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success(inst)
 
@@ -83,7 +83,7 @@ class InstanceViewSet(viewsets.ViewSet):
         InstanceManage.instance_batch_delete(
             request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             [int(pk)],
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success()
 
@@ -100,7 +100,7 @@ class InstanceViewSet(viewsets.ViewSet):
         InstanceManage.instance_batch_delete(
             request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             request.data,
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success()
 
@@ -117,7 +117,7 @@ class InstanceViewSet(viewsets.ViewSet):
             request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             int(pk),
             request.data,
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success(inst)
 
@@ -142,7 +142,7 @@ class InstanceViewSet(viewsets.ViewSet):
             request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1],
             request.data["inst_ids"],
             request.data["update_data"],
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success()
 
@@ -171,7 +171,7 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["post"], url_path="association")
     def instance_association_create(self, request):
-        asso = InstanceManage.instance_association_create(request.data, request.userinfo.get("username", ""))
+        asso = InstanceManage.instance_association_create(request.data, request.user.username)
         return WebUtils.response_success(asso)
 
     @swagger_auto_schema(
@@ -181,7 +181,7 @@ class InstanceViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["delete"], url_path="association/(?P<id>.+?)")
     def instance_association_delete(self, request, id: int):
-        InstanceManage.instance_association_delete(int(id), request.userinfo.get("username", ""))
+        InstanceManage.instance_association_delete(int(id), request.user.username)
         return WebUtils.response_success()
 
     @swagger_auto_schema(
@@ -274,7 +274,7 @@ class InstanceViewSet(viewsets.ViewSet):
         result = InstanceManage.inst_import(
             model_id,
             request.data.get("file").file,
-            request.userinfo.get("username", ""),
+            request.user.username,
         )
         return WebUtils.response_success(result)
 
@@ -358,7 +358,7 @@ class InstanceViewSet(viewsets.ViewSet):
     def create_or_update(self, request, model_id):
         data = dict(
             model_id=model_id,
-            created_by=request.userinfo.get("username", ""),
+            created_by=request.user.username,
             show_fields=request.data,
         )
         result = InstanceManage.create_or_update(data)
@@ -366,7 +366,7 @@ class InstanceViewSet(viewsets.ViewSet):
 
     @action(methods=["get"], detail=False, url_path=r"(?P<model_id>.+?)/show_field/detail")
     def get_info(self, request, model_id):
-        result = InstanceManage.get_info(model_id, request.userinfo.get("username", ""))
+        result = InstanceManage.get_info(model_id, request.user.username)
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
