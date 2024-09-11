@@ -15,9 +15,7 @@ class Export:
     def set_row_color(self, sheet, row_num, color):
         """行添加颜色"""
         for cell in sheet[row_num]:
-            cell.fill = PatternFill(
-                start_color=color, end_color=color, fill_type="solid"
-            )
+            cell.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
 
     def generate_header(self):
         """创建Excel文件, 设置属性与样式"""
@@ -28,19 +26,13 @@ class Export:
         attrs_name, attrs_id, index = [], [], 0
 
         for attr_info in self.attrs:
-            attr_name = (
-                f'{attr_info["attr_name"]}(必填)'
-                if attr_info.get("is_required")
-                else attr_info["attr_name"]
-            )
+            attr_name = f'{attr_info["attr_name"]}(必填)' if attr_info.get("is_required") else attr_info["attr_name"]
             attrs_name.append(attr_name)
             attrs_id.append(attr_info["attr_id"])
             index += 1
-            if attr_info["attr_type"] in {ENUM, ORGANIZATION, USER}:
+            if attr_info["attr_type"] == ENUM:
                 sheet.add_data_validation(
-                    self.set_enum_validation_by_sheet_data(
-                        workbook, attr_info["attr_name"], attr_info["option"], index
-                    )
+                    self.set_enum_validation_by_sheet_data(workbook, attr_info["attr_name"], attr_info["option"], index)
                 )
 
         sheet.append(attrs_name)
@@ -59,7 +51,7 @@ class Export:
 
     def set_enum_validation_by_sheet_data(self, workbook, filed_name, option, index):
         """设置枚举值, 通过sheet数据, 单选"""
-        value_list = [i["name"] for i in option]
+        value_list = [i for i in option]
 
         # 将枚举数据放入sheet页
         filed_sheet = workbook.create_sheet(title=filed_name)
@@ -69,9 +61,7 @@ class Export:
         # 创建 DataValidation 对象
         col = get_column_letter(index)
         last_row = len(filed_sheet["A"])
-        dv = DataValidation(
-            type="list", formula1=f"='{filed_sheet.title}'!$A$1:$A{last_row}"
-        )
+        dv = DataValidation(type="list", formula1=f"='{filed_sheet.title}'!$A$1:$A{last_row}")
         dv.sqref = f"{col}3:{col}999"
 
         return dv
@@ -88,16 +78,14 @@ class Export:
         enum_field_dict = {
             attr_info["attr_id"]: {i["id"]: i["name"] for i in attr_info["option"]}
             for attr_info in self.attrs
-            if attr_info["attr_type"] in {ENUM, ORGANIZATION, USER}
+            if attr_info["attr_type"] in {ORGANIZATION, USER}
         }
         for inst_info in inst_list:
             sheet_data = []
             for attr in self.attrs:
-                if attr["attr_type"] in {ENUM, ORGANIZATION, USER}:
+                if attr["attr_type"] in {ORGANIZATION, USER}:
                     sheet_data.append(
-                        enum_field_dict[attr["attr_id"]].get(
-                            inst_info.get(attr["attr_id"])
-                        )
+                        str([enum_field_dict[attr["attr_id"]].get(i) for i in inst_info.get(attr["attr_id"], [])])
                     )
                     continue
                 sheet_data.append(inst_info.get(attr["attr_id"]))
