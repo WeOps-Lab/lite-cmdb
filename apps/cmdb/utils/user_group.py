@@ -9,7 +9,7 @@ class SubGroup:
     def get_group_id_and_subgroup_id(self):
         """获取组织ID与子组ID的列表"""
         if self.group_list:
-            sub_group = self.get_subgroup(self.group_list[0], self.group_id)
+            sub_group = self.get_subgroup(self.group_list, self.group_id)
         else:
             sub_group = None
         group_id_list = [self.group_id]
@@ -55,9 +55,7 @@ class Group:
     def get_user_group_list(self):
         """获取用户组织列表"""
         userinfo = self.keycloak_client.get_userinfo(self.token)
-        user_group_list = self.keycloak_client.realm_client.get_user_groups(
-            userinfo["sub"]
-        )
+        user_group_list = self.keycloak_client.realm_client.get_user_groups(userinfo["sub"])
         return user_group_list
 
     def get_user_group_and_subgroup_ids(self):
@@ -71,9 +69,7 @@ class Group:
         user_group_and_subgroup_ids = []
         for group_info in user_group_list:
             group_id = group_info["id"]
-            user_group_and_subgroup_ids.extend(
-                SubGroup(group_id, all_groups).get_group_id_and_subgroup_id()
-            )
+            user_group_and_subgroup_ids.extend(SubGroup(group_id, all_groups).get_group_id_and_subgroup_id())
         # ID去重
         user_group_and_subgroup_ids = list(set(user_group_and_subgroup_ids))
 
