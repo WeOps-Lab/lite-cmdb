@@ -8,14 +8,21 @@ class SubGroup:
 
     def get_group_id_and_subgroup_id(self):
         """获取组织ID与子组ID的列表"""
-        if self.group_list:
-            sub_group = self.get_subgroup(self.group_list, self.group_id)
-        else:
-            sub_group = None
+
+        sub_group = None
+
+        for group in self.group_list:
+            sub_group = self.get_subgroup(group, self.group_id)
+            if sub_group:
+                break
+
         group_id_list = [self.group_id]
+
         if not sub_group:
             return group_id_list
+
         self.get_all_group_id_by_subgroups(sub_group["subGroups"], group_id_list)
+
         return group_id_list
 
     def get_subgroup(self, group, id):
@@ -49,9 +56,8 @@ class Group:
 
     def get_group_list(self):
         """获取组织列表"""
-        # todo: 默认获取第一个组织改为获取所有组织
         groups = self.keycloak_client.realm_client.get_groups({"search": ""})
-        return groups[0] if groups else []
+        return groups if groups else []
 
     def get_user_group_list(self):
         """获取用户组织列表"""
