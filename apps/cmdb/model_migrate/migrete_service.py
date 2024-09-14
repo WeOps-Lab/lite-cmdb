@@ -1,3 +1,4 @@
+import ast
 import json
 
 import pandas as pd
@@ -61,6 +62,11 @@ class ModelMigrate:
             attr_key = f"attr-{model['model_id']}"
             if attr_key in self.model_config:
                 attrs = self.model_config[attr_key]
+            for attr in attrs:
+                try:
+                    attr["option"] = ast.literal_eval(attr["option"])
+                except Exception:
+                    pass
             models.append({**model, "attrs": json.dumps(attrs)})
 
         with Neo4jClient() as ag:
