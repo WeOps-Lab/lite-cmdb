@@ -49,6 +49,7 @@ class Group:
 
     def get_group_list(self):
         """获取组织列表"""
+        # todo: 默认获取第一个组织改为获取所有组织
         groups = self.keycloak_client.realm_client.get_groups({"search": ""})
         return groups[0] if groups else []
 
