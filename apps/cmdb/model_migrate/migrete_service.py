@@ -9,6 +9,7 @@ from apps.cmdb.constants import (
     CREATE_MODEL_CHECK_ATTR,
     MODEL,
     MODEL_ASSOCIATION,
+    SUBORDINATE_MODEL,
 )
 from apps.cmdb.graph.neo4j import Neo4jClient
 
@@ -77,8 +78,25 @@ class ModelMigrate:
 
         with Neo4jClient() as ag:
             exist_items, _ = ag.query_entity(MODEL, [])
+            exist_classifications, _ = ag.query_entity(CLASSIFICATION, [])
+            classification_map = {i["classification_id"]: i["_id"] for i in exist_classifications}
+            models = [i for i in models if i.get("classification_id") in classification_map]
             result = ag.batch_create_entity(MODEL, models, CREATE_MODEL_CHECK_ATTR, exist_items)
-        return result
+
+            success_models = [i["data"] for i in result if i["success"]]
+            asso_list = [
+                dict(
+                    src_id=classification_map[i["classification_id"]],
+                    dst_id=i["_id"],
+                    classification_model_asst_id=f"{i['classification_id']}_{SUBORDINATE_MODEL}_{i['model_id']}",
+                )
+                for i in success_models
+            ]
+            asso_result = ag.batch_create_edge(
+                SUBORDINATE_MODEL, CLASSIFICATION, MODEL, asso_list, "classification_model_asst_id"
+            )
+
+        return result, asso_result
 
     def migrate_associations(self):
         """初始模型关联"""
@@ -110,8 +128,13 @@ class ModelMigrate:
         # 创建模型分类
         classification_resp = self.migrate_classifications()
         # 创建模型
-        model_resp = self.migrate_models()
+        model_resp, classification_asso_resp = self.migrate_models()
         # 创建模型关联
         association_resp = self.migrate_associations()
 
-        return dict(classification=classification_resp, model=model_resp, association=association_resp)
+        return dict(
+            classification=classification_resp,
+            model=model_resp,
+            classification_assos=classification_asso_resp,
+            association=association_resp,
+        )

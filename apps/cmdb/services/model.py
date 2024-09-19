@@ -1,16 +1,19 @@
 import json
 
 from apps.cmdb.constants import (
+    CLASSIFICATION,
     CREATE_MODEL_CHECK_ATTR,
     INST_NAME_INFOS,
     INSTANCE,
     MODEL,
     MODEL_ASSOCIATION,
     ORGANIZATION,
+    SUBORDINATE_MODEL,
     UPDATE_MODEL_CHECK_ATTR_MAP,
     USER,
 )
 from apps.cmdb.graph.neo4j import Neo4jClient
+from apps.cmdb.services.classification import ClassificationManage
 from apps.core.exceptions.base_app_exception import BaseAppException
 from apps.core.utils.keycloak_client import KeyCloakClient
 
@@ -27,6 +30,18 @@ class ModelManage(object):
         with Neo4jClient() as ag:
             exist_items, _ = ag.query_entity(MODEL, [])
             result = ag.create_entity(MODEL, data, CREATE_MODEL_CHECK_ATTR, exist_items)
+            classification_info = ClassificationManage.search_model_classification_info(data["classification_id"])
+            _ = ag.create_edge(
+                SUBORDINATE_MODEL,
+                classification_info["_id"],
+                CLASSIFICATION,
+                result["_id"],
+                MODEL,
+                dict(
+                    classification_model_asst_id=f"{result['classification_id']}_{SUBORDINATE_MODEL}_{result['model_id']}"  # noqa
+                ),
+                "classification_model_asst_id",
+            )
         return result
 
     @staticmethod
