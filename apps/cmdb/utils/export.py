@@ -51,7 +51,7 @@ class Export:
 
     def set_enum_validation_by_sheet_data(self, workbook, filed_name, option, index):
         """设置枚举值, 通过sheet数据, 单选"""
-        value_list = [i for i in option]
+        value_list = [i["name"] for i in option]
 
         # 将枚举数据放入sheet页
         filed_sheet = workbook.create_sheet(title=filed_name)

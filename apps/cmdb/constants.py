@@ -101,3 +101,6 @@ CREDENTIAL_ASSOCIATION = "credential_association"
 
 # 凭据类型
 CREDENTIAL_TYPE = {}
+
+# 模型分类与模型关联
+SUBORDINATE_MODEL = "subordinate_model"
