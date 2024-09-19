@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 
 from apps.cmdb.services.user_group import UserGroup
 from apps.core.utils.web_utils import WebUtils
+from config.default import AUTH_TOKEN_HEADER_NAME
 
 
 class UserGroupViewSet(viewsets.ViewSet):
@@ -32,7 +33,7 @@ class UserGroupViewSet(viewsets.ViewSet):
 
     @swagger_auto_schema(
         operation_id="group_list",
-        operation_description="用户组列表",
+        operation_description="组列表",
         manual_parameters=[
             openapi.Parameter("search", in_=openapi.IN_QUERY, type=openapi.TYPE_STRING),
         ],
@@ -40,4 +41,13 @@ class UserGroupViewSet(viewsets.ViewSet):
     @action(methods=["get"], detail=False)
     def group_list(self, request):
         data = UserGroup().goups_list(request.GET.get("search", ""))
+        return WebUtils.response_success(data)
+
+    @swagger_auto_schema(
+        operation_id="user_groups",
+        operation_description="用户组列表",
+    )
+    @action(methods=["get"], detail=False)
+    def user_groups(self, request):
+        data = UserGroup().user_goups_list(request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1])
         return WebUtils.response_success(data)
