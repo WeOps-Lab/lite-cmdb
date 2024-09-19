@@ -44,6 +44,10 @@ class ModelMigrate:
 
     def migrate_classifications(self):
         """初始化模型分类"""
+
+        for classification in self.model_config.get("classifications", []):
+            classification.update(is_pre=True)
+
         with Neo4jClient() as ag:
             exist_items, _ = ag.query_entity(CLASSIFICATION, [])
             result = ag.batch_create_entity(
@@ -58,11 +62,13 @@ class ModelMigrate:
         """初始化模型"""
         models = []
         for model in self.model_config.get("models", []):
+            model.update(is_pre=True)
             attrs = []
             attr_key = f"attr-{model['model_id']}"
             if attr_key in self.model_config:
                 attrs = self.model_config[attr_key]
             for attr in attrs:
+                attr.update(is_pre=True)
                 try:
                     attr["option"] = ast.literal_eval(attr["option"])
                 except Exception:
@@ -81,6 +87,10 @@ class ModelMigrate:
             asso_key = f"asso-{model['model_id']}"
             if asso_key in self.model_config:
                 associations.extend(self.model_config[asso_key])
+
+        for association in associations:
+            association.update(is_pre=True)
+
         with Neo4jClient() as ag:
             models, _ = ag.query_entity(MODEL, [])
             model_map = {i["model_id"]: i["_id"] for i in models}
