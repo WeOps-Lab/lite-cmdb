@@ -1,4 +1,4 @@
-from apps.cmdb.constants import ENCRYPTION, INSTANCE, INSTANCE_ASSOCIATION
+from apps.cmdb.constants import INSTANCE, INSTANCE_ASSOCIATION
 from apps.cmdb.graph.neo4j import Neo4jClient
 from apps.cmdb.models.change_record import CREATE_INST, CREATE_INST_ASST, DELETE_INST, DELETE_INST_ASST, UPDATE_INST
 from apps.cmdb.models.show_field import ShowField
@@ -40,9 +40,7 @@ class InstanceManage(object):
         raise BaseAppException(message)
 
     @staticmethod
-    def instance_list(
-        token: str, model_id: str, params: list, page: int, page_size: int, order: str
-    ):
+    def instance_list(token: str, model_id: str, params: list, page: int, page_size: int, order: str):
         """实例列表"""
 
         params.append({"field": "model_id", "type": "str=", "value": model_id})
@@ -69,22 +67,15 @@ class InstanceManage(object):
         instance_info.update(model_id=model_id)
         attrs = ModelManage.search_model_attr(model_id)
         check_attr_map = dict(is_only={}, is_required={})
-        encryption_set = set()
         for attr in attrs:
             if attr["is_only"]:
                 check_attr_map["is_only"][attr["attr_id"]] = attr["attr_name"]
             if attr["is_required"]:
                 check_attr_map["is_required"][attr["attr_id"]] = attr["attr_name"]
-            if attr["attr_type"] == ENCRYPTION:
-                encryption_set.add(attr["attr_id"])
 
         with Neo4jClient() as ag:
-            exist_items, _ = ag.query_entity(
-                INSTANCE, [{"field": "model_id", "type": "str=", "value": model_id}]
-            )
-            result = ag.create_entity(
-                INSTANCE, instance_info, check_attr_map, exist_items, operator
-            )
+            exist_items, _ = ag.query_entity(INSTANCE, [{"field": "model_id", "type": "str=", "value": model_id}])
+            result = ag.create_entity(INSTANCE, instance_info, check_attr_map, exist_items, operator)
 
         create_change_record(
             result["_id"],
@@ -106,13 +97,10 @@ class InstanceManage(object):
 
         model_info = ModelManage.search_model_info(inst_info["model_id"])
 
-        InstanceManage.check_instances_permission(
-            token, [inst_info], inst_info["model_id"]
-        )
+        InstanceManage.check_instances_permission(token, [inst_info], inst_info["model_id"])
 
         attrs = ModelManage.parse_attrs(model_info.get("attrs", "[]"))
         check_attr_map = dict(is_only={}, is_required={}, editable={})
-        encryption_set = set()
         for attr in attrs:
             if attr["is_only"]:
                 check_attr_map["is_only"][attr["attr_id"]] = attr["attr_name"]
@@ -120,8 +108,6 @@ class InstanceManage(object):
                 check_attr_map["is_required"][attr["attr_id"]] = attr["attr_name"]
             if attr["editable"]:
                 check_attr_map["editable"][attr["attr_id"]] = attr["attr_name"]
-            if attr["attr_type"] == ENCRYPTION:
-                encryption_set.add(attr["attr_id"])
 
         with Neo4jClient() as ag:
             exist_items, _ = ag.query_entity(
@@ -129,9 +115,7 @@ class InstanceManage(object):
                 [{"field": "model_id", "type": "str=", "value": inst_info["model_id"]}],
             )
             exist_items = [i for i in exist_items if i["_id"] != inst_id]
-            result = ag.set_entity_properties(
-                INSTANCE, [inst_id], update_attr, check_attr_map, exist_items
-            )
+            result = ag.set_entity_properties(INSTANCE, [inst_id], update_attr, check_attr_map, exist_items)
 
         create_change_record(
             inst_info["_id"],
@@ -146,9 +130,7 @@ class InstanceManage(object):
         return result[0]
 
     @staticmethod
-    def batch_instance_update(
-        token: str, inst_ids: list, update_attr: dict, operator: str
-    ):
+    def batch_instance_update(token: str, inst_ids: list, update_attr: dict, operator: str):
         """批量修改实例属性"""
 
         inst_list = InstanceManage.query_entity_by_ids(inst_ids)
@@ -158,13 +140,10 @@ class InstanceManage(object):
 
         model_info = ModelManage.search_model_info(inst_list[0]["model_id"])
 
-        InstanceManage.check_instances_permission(
-            token, inst_list, model_info["model_id"]
-        )
+        InstanceManage.check_instances_permission(token, inst_list, model_info["model_id"])
 
         attrs = ModelManage.parse_attrs(model_info.get("attrs", "[]"))
         check_attr_map = dict(is_only={}, is_required={}, editable={})
-        encryption_set = set()
         for attr in attrs:
             if attr["is_only"]:
                 check_attr_map["is_only"][attr["attr_id"]] = attr["attr_name"]
@@ -172,8 +151,6 @@ class InstanceManage(object):
                 check_attr_map["is_required"][attr["attr_id"]] = attr["attr_name"]
             if attr["editable"]:
                 check_attr_map["editable"][attr["attr_id"]] = attr["attr_name"]
-            if attr["attr_type"] == ENCRYPTION:
-                encryption_set.add(attr["attr_id"])
 
         with Neo4jClient() as ag:
             exist_items, _ = ag.query_entity(
@@ -187,9 +164,7 @@ class InstanceManage(object):
                 ],
             )
             exist_items = [i for i in exist_items if i["_id"] not in inst_ids]
-            result = ag.set_entity_properties(
-                INSTANCE, inst_ids, update_attr, check_attr_map, exist_items
-            )
+            result = ag.set_entity_properties(INSTANCE, inst_ids, update_attr, check_attr_map, exist_items)
 
         after_dict = {i["_id"]: i for i in result}
         change_records = [
@@ -201,9 +176,7 @@ class InstanceManage(object):
             )
             for i in inst_list
         ]
-        batch_create_change_record(
-            INSTANCE, UPDATE_INST, change_records, operator=operator
-        )
+        batch_create_change_record(INSTANCE, UPDATE_INST, change_records, operator=operator)
 
         return result
 
@@ -215,20 +188,13 @@ class InstanceManage(object):
         if not inst_list:
             raise BaseAppException("实例不存在！")
 
-        InstanceManage.check_instances_permission(
-            token, inst_list, inst_list[0]["model_id"]
-        )
+        InstanceManage.check_instances_permission(token, inst_list, inst_list[0]["model_id"])
 
         with Neo4jClient() as ag:
             ag.batch_delete_entity(INSTANCE, inst_ids)
 
-        change_records = [
-            dict(inst_id=i["_id"], model_id=i["model_id"], before_data=i)
-            for i in inst_list
-        ]
-        batch_create_change_record(
-            INSTANCE, DELETE_INST, change_records, operator=operator
-        )
+        change_records = [dict(inst_id=i["_id"], model_id=i["model_id"], before_data=i) for i in inst_list]
+        batch_create_change_record(INSTANCE, DELETE_INST, change_records, operator=operator)
 
     @staticmethod
     def instance_association_instance_list(model_id: str, inst_id: int):
@@ -240,18 +206,14 @@ class InstanceManage(object):
                 {"field": "src_inst_id", "type": "int=", "value": inst_id},
                 {"field": "src_model_id", "type": "str=", "value": model_id},
             ]
-            src_edge, _ = ag.query_edge(
-                INSTANCE_ASSOCIATION, src_query_data, return_entity=True
-            )
+            src_edge, _ = ag.query_edge(INSTANCE_ASSOCIATION, src_query_data, return_entity=True)
 
             # 作为目标模型实例
             dst_query_data = [
                 {"field": "dst_inst_id", "type": "int=", "value": inst_id},
                 {"field": "dst_model_id", "type": "str=", "value": model_id},
             ]
-            dst_edge, _ = ag.query_edge(
-                INSTANCE_ASSOCIATION, dst_query_data, return_entity=True
-            )
+            dst_edge, _ = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data, return_entity=True)
 
         result = {}
         for item in src_edge + dst_edge:
@@ -312,9 +274,7 @@ class InstanceManage(object):
 
         asso_info = InstanceManage.instance_association_by_asso_id(edge["_id"])
 
-        create_change_record_by_asso(
-            INSTANCE_ASSOCIATION, CREATE_INST_ASST, asso_info, operator=operator
-        )
+        create_change_record_by_asso(INSTANCE_ASSOCIATION, CREATE_INST_ASST, asso_info, operator=operator)
 
         return edge
 
@@ -327,9 +287,7 @@ class InstanceManage(object):
         with Neo4jClient() as ag:
             ag.delete_edge(asso_id)
 
-        create_change_record_by_asso(
-            INSTANCE_ASSOCIATION, DELETE_INST_ASST, asso_info, operator=operator
-        )
+        create_change_record_by_asso(INSTANCE_ASSOCIATION, DELETE_INST_ASST, asso_info, operator=operator)
 
     @staticmethod
     def instance_association_by_asso_id(asso_id: int):
@@ -363,12 +321,8 @@ class InstanceManage(object):
         """实例导入"""
         attrs = ModelManage.search_model_attr_v2(model_id)
         with Neo4jClient() as ag:
-            exist_items, _ = ag.query_entity(
-                INSTANCE, [{"field": "model_id", "type": "str=", "value": model_id}]
-            )
-        results = Import(model_id, attrs, exist_items, operator).import_inst_list(
-            file_stream
-        )
+            exist_items, _ = ag.query_entity(INSTANCE, [{"field": "model_id", "type": "str=", "value": model_id}])
+        results = Import(model_id, attrs, exist_items, operator).import_inst_list(file_stream)
 
         change_records = [
             dict(
@@ -379,9 +333,7 @@ class InstanceManage(object):
             for i in results
             if i["success"]
         ]
-        batch_create_change_record(
-            INSTANCE, CREATE_INST, change_records, operator=operator
-        )
+        batch_create_change_record(INSTANCE, CREATE_INST, change_records, operator=operator)
 
         return results
 
@@ -393,18 +345,14 @@ class InstanceManage(object):
             if ids:
                 inst_list = ag.query_entity_by_ids(ids)
             else:
-                inst_list, _ = ag.query_entity(
-                    INSTANCE, [{"field": "model_id", "type": "str=", "value": model_id}]
-                )
+                inst_list, _ = ag.query_entity(INSTANCE, [{"field": "model_id", "type": "str=", "value": model_id}])
         return Export(attrs).export_inst_list(inst_list)
 
     @staticmethod
     def topo_search(inst_id: int):
         """拓扑查询"""
         with Neo4jClient() as ag:
-            result = ag.query_topo(
-                INSTANCE, [{"field": "id", "type": "id=", "value": inst_id}]
-            )
+            result = ag.query_topo(INSTANCE, [{"field": "id", "type": "id=", "value": inst_id}])
         return result
 
     @staticmethod
@@ -421,18 +369,14 @@ class InstanceManage(object):
     @staticmethod
     def get_info(model_id: str, created_by: str):
         obj = ShowField.objects.filter(created_by=created_by, model_id=model_id).first()
-        result = (
-            dict(model_id=obj.model_id, show_fields=obj.show_fields) if obj else None
-        )
+        result = dict(model_id=obj.model_id, show_fields=obj.show_fields) if obj else None
         return result
 
     @staticmethod
     def model_inst_count(token):
         permission_params = InstanceManage.get_permission_params(token)
         with Neo4jClient() as ag:
-            data = ag.entity_count(
-                INSTANCE, "model_id", [], permission_params=permission_params
-            )
+            data = ag.entity_count(INSTANCE, "model_id", [], permission_params=permission_params)
         return data
 
     @staticmethod

@@ -42,24 +42,18 @@ class CredentialViewSet(viewsets.ViewSet):
     @swagger_auto_schema(
         operation_id="encryption_field",
         operation_description="获取加密字段值",
-        manual_parameters=[
-            openapi.Parameter(
-                "id",
-                openapi.IN_PATH,
-                description="凭据ID",
-                type=openapi.TYPE_INTEGER,
-            ),
-            openapi.Parameter(
-                "field",
-                openapi.IN_PATH,
-                description="字段",
-                type=openapi.TYPE_STRING,
-            ),
-        ],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, description="凭据ID"),
+                "field": openapi.Schema(type=openapi.TYPE_STRING, description="凭据属性"),
+            },
+            required=["id", "field"],
+        ),
     )
-    @action(detail=True, methods=["get"], url_path="encryption_field")
-    def encryption_field(self, request, pk: str, field: str):
-        data = CredentialManage.get_encryption_field(int(pk), field)
+    @action(detail=False, methods=["post"], url_path="encryption_field")
+    def encryption_field(self, request):
+        data = CredentialManage.get_encryption_field(request.data["id"], request.data["field"])
         return WebUtils.response_success(data)
 
     @swagger_auto_schema(
@@ -79,20 +73,23 @@ class CredentialViewSet(viewsets.ViewSet):
         result = CredentialManage.credential_list(
             credential_type,
             request.user.username,
-            request.GET.get("page", 1),
-            request.GET.get("page_size", 10),
+            int(request.GET.get("page", 1)),
+            int(request.GET.get("page_size", 10)),
         )
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
         operation_id="batch_delete_credential",
         operation_description="批量删除凭据",
-        manual_parameters=[openapi.Parameter("ids", openapi.IN_QUERY, description="凭据Ids", type=openapi.TYPE_STRING)],
+        manual_parameters=[
+            openapi.Parameter("ids", openapi.IN_QUERY, description="凭据Id（多个用逗号隔离）", type=openapi.TYPE_STRING)
+        ],
     )
-    def destroy(self, request):
+    @action(detail=False, methods=["delete"], url_path="batch_delete")
+    def batch_delete_credential(self, request):
         ids = request.GET.get("ids")
         ids = ids.split(",") if ids else []
-        CredentialManage.batch_delete_credential(ids)
+        CredentialManage.batch_delete_credential([int(i) for i in ids])
         return WebUtils.response_success()
 
     @swagger_auto_schema(
@@ -103,4 +100,48 @@ class CredentialViewSet(viewsets.ViewSet):
     )
     def partial_update(self, request, pk: str):
         CredentialManage.update_credential(int(pk), request.data)
+        return WebUtils.response_success()
+
+    @swagger_auto_schema(
+        operation_id="credential_association_inst",
+        operation_description="创建凭据与实例关联",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "credential_id": openapi.Schema(type=openapi.TYPE_STRING, description="凭据ID"),
+                "instance_id": openapi.Schema(type=openapi.TYPE_STRING, description="实例ID"),
+            },
+            required=["credential_id", "instance_id"],
+        ),
+    )
+    @action(detail=False, methods=["post"], url_path="credential_association_inst")
+    def credential_asso_inst(self, request):
+        asso = CredentialManage.credential_asso_inst(request.data, request.user.username)
+        return WebUtils.response_success(asso)
+
+    @swagger_auto_schema(
+        operation_id="instance_association_instance_list",
+        operation_description="查询凭据关联实例列表（或实例关联凭据列表）",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "credential_id": openapi.Schema(type=openapi.TYPE_STRING, description="凭据ID"),
+                "instance_id": openapi.Schema(type=openapi.TYPE_STRING, description="实例ID"),
+            },
+            description="credential_id和instance_id二选一",
+        ),
+    )
+    @action(detail=False, methods=["post"], url_path="credential_association_inst_list")
+    def credential_asso_inst_list(self, request):
+        asso_insts = CredentialManage.credential_asso_inst_list(request.data)
+        return WebUtils.response_success(asso_insts)
+
+    @swagger_auto_schema(
+        operation_id="credential_association_delete",
+        operation_description="删除凭据关联",
+        manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="实例关联ID", type=openapi.TYPE_INTEGER)],
+    )
+    @action(detail=False, methods=["delete"], url_path="association/(?P<id>.+?)")
+    def credential_association_delete(self, request, id: int):
+        CredentialManage.credential_association_delete(int(id), request.user.username)
         return WebUtils.response_success()

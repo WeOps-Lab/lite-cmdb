@@ -427,6 +427,11 @@ class Neo4jClient:
         label_str = f":{label}" if label else ""
         self.session.run(f"MATCH (n{label_str}) WHERE id(n) IN {entity_ids} DELETE n")
 
+    def detach_delete_entity(self, label: str, id: int):
+        """删除实体，以及实体的关联关系"""
+        label_str = f":{label}" if label else ""
+        self.session.run(f"MATCH (n{label_str}) WHERE id(n) = {id} DETACH DELETE n")
+
     def delete_edge(self, edge_id: int):
         """删除边"""
         self.session.run(f"MATCH ()-[n]->() WHERE id(n) = {edge_id} DELETE n")
