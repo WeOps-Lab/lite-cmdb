@@ -96,8 +96,8 @@ CREDENTIAL = "credential"
 # 凭据实例关联标签
 CREDENTIAL_ASSOCIATION = "credential_association"
 
-# 凭据类型
-CREDENTIAL_TYPE = {}
-
 # 模型分类与模型关联
 SUBORDINATE_MODEL = "subordinate_model"
+
+# 加密的属性列表
+ENCRYPTED_KEY = {"password", "secret_key", "encryption_key"}

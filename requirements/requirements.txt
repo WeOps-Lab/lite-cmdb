@@ -37,4 +37,3 @@ psycopg2-binary==2.9.9
 django-import-export==3.3.6
 
 neo4j==5.23.1
-hvac==2.3.0

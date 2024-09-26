@@ -1,12 +1,11 @@
-import uuid
 from datetime import datetime, timezone
 
-from apps.cmdb.constants import CREDENTIAL, CREDENTIAL_ASSOCIATION, CREDENTIAL_TYPE, INSTANCE
+from apps.cmdb.constants import CREDENTIAL, CREDENTIAL_ASSOCIATION, ENCRYPTED_KEY, INSTANCE
 from apps.cmdb.graph.neo4j import Neo4jClient
 from apps.cmdb.models import CREATE_INST_ASST, DELETE_INST_ASST
 from apps.cmdb.services.instance import InstanceManage
 from apps.cmdb.utils.change_record import create_change_record_by_asso
-from apps.cmdb.utils.vault import HvacClient
+from apps.cmdb.utils.credential import Credential
 from apps.core.exceptions.base_app_exception import BaseAppException
 
 
@@ -36,32 +35,35 @@ class CredentialManage(object):
     def vault_detail(_id: int):
         """获取凭据详情"""
         with Neo4jClient() as ag:
-            cre = ag.query_entity_by_id(_id)
-        credential_type = cre.get("credential_type")
-        path = cre.get("path")
+            data = ag.query_entity_by_id(_id)
+        #
+        # for key, value in data.items():
+        #     if key in ENCRYPTED_KEY:
+        #         data[key] = "******"
 
-        encryption_fields = CREDENTIAL_TYPE.get(credential_type, [])
-        result = HvacClient().read_secret(path)
-        for key, value in result.items():
-            if key in encryption_fields:
-                result[key] = "******"
-        return result
+        return data
 
     @staticmethod
     def get_encryption_field(_id, field: str):
         """获取加密字段"""
         with Neo4jClient() as ag:
-            cre = ag.query_entity_by_id(_id)
-        result = HvacClient().read_secret(cre.get("path"))
-        return result.get(field)
+            data = ag.query_entity_by_id(_id)
+        if field not in ENCRYPTED_KEY:
+            return data.get(field, "")
+        secret = Credential().decrypt_data(data.get(field, ""))
+        return secret
 
     @staticmethod
     def create_credential(credential_type: str, data: dict, operator: str):
         """创建凭据"""
-        path = uuid.uuid4().hex
-        HvacClient().set_secret(path, data)
+
+        for key, value in data.items():
+            # 密钥类属性加密
+            if key in ENCRYPTED_KEY:
+                data[key] = Credential().encrypt_data(value)
+
         now_time = datetime.now(timezone.utc).isoformat()
-        info = dict(credential_type=credential_type, name=data.get("name"), update_time=now_time, path=path)
+        info = dict(credential_type=credential_type, update_time=now_time, **data)
         with Neo4jClient() as ag:
             result = ag.create_entity(CREDENTIAL, info, {}, [], operator)
         return result
@@ -69,28 +71,21 @@ class CredentialManage(object):
     @staticmethod
     def update_credential(_id, data: dict):
         """更新凭据"""
-        with Neo4jClient() as ag:
-            cre = ag.query_entity_by_id(_id)
-        secret = HvacClient().read_secret(cre.get("path"))
-
         for key, value in data.items():
-            secret[key] = value
-        HvacClient().set_secret(cre.get("path"), secret)
+            # 密钥类属性加密
+            if key in ENCRYPTED_KEY:
+                data[key] = Credential().encrypt_data(value)
+
         now_time = datetime.now(timezone.utc).isoformat()
-        update_data = dict(update_time=now_time, name=secret.get("name"))
+        data.update(update_time=now_time)
         with Neo4jClient() as ag:
-            _ = ag.set_entity_properties(CREDENTIAL, [_id], update_data, {}, [], False)
+            _ = ag.set_entity_properties(CREDENTIAL, [_id], data, {}, [], False)
 
     @staticmethod
     def batch_delete_credential(ids: list):
         """批量删除凭据"""
         with Neo4jClient() as ag:
-            cre_list = ag.query_entity_by_ids(ids)
             ag.batch_delete_entity(CREDENTIAL, ids)
-
-        for cre in cre_list:
-            path = cre.get("path")
-            HvacClient().delete_secret(path)
 
     @staticmethod
     def credential_asso_inst(data, operator: str):
