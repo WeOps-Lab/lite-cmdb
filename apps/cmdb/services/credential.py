@@ -92,27 +92,29 @@ class CredentialManage(object):
         """凭据关联实例"""
 
         data.update(credential_inst_asso_id=f"{CREDENTIAL}_{INSTANCE}")
-
+        result = {"success": [], "error": []}
         with Neo4jClient() as ag:
-            try:
-                edge = ag.create_edge(
-                    CREDENTIAL_ASSOCIATION,
-                    data["credential_id"],
-                    CREDENTIAL,
-                    data["instance_id"],
-                    INSTANCE,
-                    data,
-                    "credential_inst_asso_id",
-                )
-            except BaseAppException as e:
-                if e.message == "edge already exists":
-                    raise BaseAppException("instance association repetition")
+            for instance_id in data.get("instance_ids", []):
+                try:
+                    edge = ag.create_edge(
+                        CREDENTIAL_ASSOCIATION,
+                        data["credential_id"],
+                        CREDENTIAL,
+                        instance_id,
+                        INSTANCE,
+                        data,
+                        "credential_inst_asso_id",
+                    )
+                    asso_info = InstanceManage.instance_association_by_asso_id(edge["_id"])
+                    create_change_record_by_asso(CREDENTIAL_ASSOCIATION, CREATE_INST_ASST, asso_info, operator=operator)
+                    result["success"].append(instance_id)
+                except BaseAppException as e:
+                    msg = e.message
+                    if msg == "edge already exists":
+                        msg = "instance association repetition"
+                    result["error"].append(dict(instance_id=instance_id, message=msg))
 
-        asso_info = InstanceManage.instance_association_by_asso_id(edge["_id"])
-
-        create_change_record_by_asso(CREDENTIAL_ASSOCIATION, CREATE_INST_ASST, asso_info, operator=operator)
-
-        return edge
+        return result
 
     @staticmethod
     def credential_asso_inst_list(query_dict):
@@ -121,14 +123,14 @@ class CredentialManage(object):
         if credential_id:
             with Neo4jClient() as ag:
                 query_data = [{"field": "credential_id", "type": "int=", "value": credential_id}]
-                edges, _ = ag.query_edge(CREDENTIAL_ASSOCIATION, query_data, return_entity=True)
+                edges = ag.query_edge(CREDENTIAL_ASSOCIATION, query_data, return_entity=True)
             return [i["dst"] for i in edges]
 
         instance_id = query_dict.get("instance_id")
         if instance_id:
             with Neo4jClient() as ag:
                 query_data = [{"field": "instance_id", "type": "int=", "value": instance_id}]
-                edges, _ = ag.query_edge(CREDENTIAL_ASSOCIATION, query_data, return_entity=True)
+                edges = ag.query_edge(CREDENTIAL_ASSOCIATION, query_data, return_entity=True)
             return [i["src"] for i in edges]
 
         return []

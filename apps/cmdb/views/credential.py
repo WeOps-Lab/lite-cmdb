@@ -109,9 +109,11 @@ class CredentialViewSet(viewsets.ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "credential_id": openapi.Schema(type=openapi.TYPE_STRING, description="凭据ID"),
-                "instance_id": openapi.Schema(type=openapi.TYPE_STRING, description="实例ID"),
+                "instance_ids": openapi.Schema(
+                    type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING), description="实例ID列表"
+                ),
             },
-            required=["credential_id", "instance_id"],
+            required=["credential_id", "instance_ids"],
         ),
     )
     @action(detail=False, methods=["post"], url_path="credential_association_inst")
