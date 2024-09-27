@@ -5,6 +5,7 @@ from apps.cmdb.constants import (
     UPDATE_CLASSIFICATION_check_attr_map,
 )
 from apps.cmdb.graph.neo4j import Neo4jClient
+from apps.cmdb.language.setting import SettingLanguage
 
 
 class ClassificationManage(object):
@@ -76,7 +77,7 @@ class ClassificationManage(object):
         return model[0]
 
     @staticmethod
-    def search_model_classification():
+    def search_model_classification(language: str = "en"):
         """
         查询模型分类
         """
@@ -91,4 +92,13 @@ class ClassificationManage(object):
                 classification["exist_model"] = True
             else:
                 classification["exist_model"] = False
+
+        lan = SettingLanguage(language)
+
+        for classification in classifications:
+            classification["classification_name"] = (
+                lan.get_val("CLASSIFICATION", classification["classification_id"])
+                or classification["classification_name"]
+            )
+
         return classifications

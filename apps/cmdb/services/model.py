@@ -13,6 +13,7 @@ from apps.cmdb.constants import (
     USER,
 )
 from apps.cmdb.graph.neo4j import Neo4jClient
+from apps.cmdb.language.setting import SettingLanguage
 from apps.cmdb.services.classification import ClassificationManage
 from apps.core.exceptions.base_app_exception import BaseAppException
 from apps.core.utils.keycloak_client import KeyCloakClient
@@ -64,12 +65,17 @@ class ModelManage(object):
         return model[0]
 
     @staticmethod
-    def search_model():
+    def search_model(language: str = "en"):
         """
         查询模型
         """
         with Neo4jClient() as ag:
             models, _ = ag.query_entity(MODEL, [])
+        lan = SettingLanguage(language)
+
+        for model in models:
+            model["model_name"] = lan.get_val("MODEL", model["model_id"]) or model["model_name"]
+
         return models
 
     @staticmethod
@@ -195,12 +201,17 @@ class ModelManage(object):
                 ModelManage.get_organization_option(item["subGroups"], result)
 
     @staticmethod
-    def search_model_attr(model_id: str):
+    def search_model_attr(model_id: str, language: str = "en"):
         """
         查询模型属性
         """
         model_info = ModelManage.search_model_info(model_id)
         attrs = ModelManage.parse_attrs(model_info.get("attrs", "[]"))
+        lan = SettingLanguage(language)
+        for attr in attrs:
+            model_attr = lan.get_val("ATTR", model_id)
+            if model_attr:
+                attr["attr_name"] = model_attr.get("attr_id") or attr["attr_name"]
         return attrs
 
     @staticmethod

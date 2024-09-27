@@ -206,14 +206,14 @@ class InstanceManage(object):
                 {"field": "src_inst_id", "type": "int=", "value": inst_id},
                 {"field": "src_model_id", "type": "str=", "value": model_id},
             ]
-            src_edge, _ = ag.query_edge(INSTANCE_ASSOCIATION, src_query_data, return_entity=True)
+            src_edge = ag.query_edge(INSTANCE_ASSOCIATION, src_query_data, return_entity=True)
 
             # 作为目标模型实例
             dst_query_data = [
                 {"field": "dst_inst_id", "type": "int=", "value": inst_id},
                 {"field": "dst_model_id", "type": "str=", "value": model_id},
             ]
-            dst_edge, _ = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data, return_entity=True)
+            dst_edge = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data, return_entity=True)
 
         result = {}
         for item in src_edge + dst_edge:
