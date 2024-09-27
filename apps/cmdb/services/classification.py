@@ -5,7 +5,7 @@ from apps.cmdb.constants import (
     UPDATE_CLASSIFICATION_check_attr_map,
 )
 from apps.cmdb.graph.neo4j import Neo4jClient
-from apps.cmdb.language.setting import SettingLanguage
+from apps.cmdb.language.service import SettingLanguage
 
 
 class ClassificationManage(object):

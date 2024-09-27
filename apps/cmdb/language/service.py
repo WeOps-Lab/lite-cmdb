@@ -4,9 +4,9 @@ class SettingLanguage:
 
     def get_language_dict(self, language: str):
         if language == "zh":
-            from apps.cmdb.language.languages.zh import LANGUAGE_DICT
+            from apps.cmdb.language.pack.zh import LANGUAGE_DICT
         elif language == "en":
-            from apps.cmdb.language.languages.en import LANGUAGE_DICT
+            from apps.cmdb.language.pack.en import LANGUAGE_DICT
         else:
             raise Exception("Language not supported")
         return LANGUAGE_DICT

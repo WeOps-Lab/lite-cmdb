@@ -13,7 +13,7 @@ from apps.cmdb.constants import (
     USER,
 )
 from apps.cmdb.graph.neo4j import Neo4jClient
-from apps.cmdb.language.setting import SettingLanguage
+from apps.cmdb.language.service import SettingLanguage
 from apps.cmdb.services.classification import ClassificationManage
 from apps.core.exceptions.base_app_exception import BaseAppException
 from apps.core.utils.keycloak_client import KeyCloakClient
