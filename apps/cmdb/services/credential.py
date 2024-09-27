@@ -6,7 +6,6 @@ from apps.cmdb.models import CREATE_INST_ASST, DELETE_INST_ASST
 from apps.cmdb.services.instance import InstanceManage
 from apps.cmdb.utils.change_record import create_change_record_by_asso
 from apps.cmdb.utils.credential import Credential
-from apps.core.exceptions.base_app_exception import BaseAppException
 
 
 class CredentialManage(object):
@@ -30,18 +29,6 @@ class CredentialManage(object):
             )
 
         return dict(items=inst_list, count=count)
-
-    @staticmethod
-    def vault_detail(_id: int):
-        """获取凭据详情"""
-        with Neo4jClient() as ag:
-            data = ag.query_entity_by_id(_id)
-        #
-        # for key, value in data.items():
-        #     if key in ENCRYPTED_KEY:
-        #         data[key] = "******"
-
-        return data
 
     @staticmethod
     def get_encryption_field(_id, field: str):
@@ -91,49 +78,75 @@ class CredentialManage(object):
     def credential_asso_inst(data, operator: str):
         """凭据关联实例"""
 
-        data.update(credential_inst_asso_id=f"{CREDENTIAL}_{INSTANCE}")
-        result = {"success": [], "error": []}
+        asso_instances = data.get("instance_ids", [])
         with Neo4jClient() as ag:
-            for instance_id in data.get("instance_ids", []):
-                try:
-                    edge = ag.create_edge(
-                        CREDENTIAL_ASSOCIATION,
-                        data["credential_id"],
-                        CREDENTIAL,
-                        instance_id,
-                        INSTANCE,
-                        data,
-                        "credential_inst_asso_id",
-                    )
-                    asso_info = InstanceManage.instance_association_by_asso_id(edge["_id"])
-                    create_change_record_by_asso(CREDENTIAL_ASSOCIATION, CREATE_INST_ASST, asso_info, operator=operator)
-                    result["success"].append(instance_id)
-                except BaseAppException as e:
-                    msg = e.message
-                    if msg == "edge already exists":
-                        msg = "instance association repetition"
-                    result["error"].append(dict(instance_id=instance_id, message=msg))
+            assos = ag.query_edge(
+                CREDENTIAL_ASSOCIATION,
+                [
+                    {"field": "id", "type": "id=", "value": data["credential_id"]},
+                    {"field": "asst_model_id", "type": "str=", "value": data["model_id"]},
+                ],
+            )
 
-        return result
+        exist_instance_assos = {i["instance_id"]: i["_id"] for i in assos}
+
+        del_asso_ids = [exist_instance_assos[i] for i in exist_instance_assos.keys() if i not in asso_instances]
+        for asso_id in del_asso_ids:
+            CredentialManage.credential_association_delete(asso_id, operator)
+
+        add_asso_instance_ids = [i for i in asso_instances if i not in exist_instance_assos]
+        for instance_id in add_asso_instance_ids:
+            CredentialManage.credential_association_create(
+                dict(
+                    credential_id=data["credential_id"],
+                    instance_id=instance_id,
+                    asst_model_id=data["model_id"],
+                    _creator=operator,
+                ),
+                operator,
+            )
 
     @staticmethod
-    def credential_asso_inst_list(query_dict):
+    def credential_asso_inst_list(query_dict, operator: str):
         """获取凭据关联实例列表"""
         credential_id = query_dict.get("credential_id")
         if credential_id:
             with Neo4jClient() as ag:
-                query_data = [{"field": "credential_id", "type": "int=", "value": credential_id}]
+                query_data = [
+                    {"field": "credential_id", "type": "int=", "value": credential_id},
+                    {"field": "_creator", "type": "str=", "value": operator},
+                ]
                 edges = ag.query_edge(CREDENTIAL_ASSOCIATION, query_data, return_entity=True)
             return [i["dst"] for i in edges]
 
         instance_id = query_dict.get("instance_id")
         if instance_id:
             with Neo4jClient() as ag:
-                query_data = [{"field": "instance_id", "type": "int=", "value": instance_id}]
+                query_data = [
+                    {"field": "instance_id", "type": "int=", "value": instance_id},
+                    {"field": "_creator", "type": "str=", "value": operator},
+                ]
                 edges = ag.query_edge(CREDENTIAL_ASSOCIATION, query_data, return_entity=True)
             return [i["src"] for i in edges]
 
         return []
+
+    @staticmethod
+    def credential_association_create(data: dict, operator: str):
+        """创建凭据关联"""
+
+        with Neo4jClient() as ag:
+            edge = ag.create_edge(
+                CREDENTIAL_ASSOCIATION,
+                data["credential_id"],
+                CREDENTIAL,
+                data["instance_id"],
+                INSTANCE,
+                data,
+                "asst_model_id",
+            )
+        asso_info = InstanceManage.instance_association_by_asso_id(edge["_id"])
+        create_change_record_by_asso(CREDENTIAL_ASSOCIATION, CREATE_INST_ASST, asso_info, operator=operator)
 
     @staticmethod
     def credential_association_delete(asso_id: int, operator: str):

@@ -29,17 +29,6 @@ class CredentialViewSet(viewsets.ViewSet):
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
-        operation_id="vault_detail",
-        operation_description="查询凭据详情",
-        manual_parameters=[
-            openapi.Parameter("id", openapi.IN_PATH, description="凭据ID", type=openapi.TYPE_INTEGER),
-        ],
-    )
-    def retrieve(self, request, pk: str):
-        data = CredentialManage.vault_detail(int(pk))
-        return WebUtils.response_success(data)
-
-    @swagger_auto_schema(
         operation_id="encryption_field",
         operation_description="获取加密字段值",
         request_body=openapi.Schema(
@@ -103,21 +92,22 @@ class CredentialViewSet(viewsets.ViewSet):
         return WebUtils.response_success()
 
     @swagger_auto_schema(
-        operation_id="credential_association_inst",
-        operation_description="创建凭据与实例关联",
+        operation_id="setting_credential_inst_assos",
+        operation_description="设置凭据与实例的关联",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
                 "credential_id": openapi.Schema(type=openapi.TYPE_STRING, description="凭据ID"),
+                "model_id": openapi.Schema(type=openapi.TYPE_STRING, description="凭据ID"),
                 "instance_ids": openapi.Schema(
                     type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING), description="实例ID列表"
                 ),
             },
-            required=["credential_id", "instance_ids"],
+            required=["credential_id", "model_id", "instance_ids"],
         ),
     )
     @action(detail=False, methods=["post"], url_path="credential_association_inst")
-    def credential_asso_inst(self, request):
+    def setting_credential_inst_assos(self, request):
         asso = CredentialManage.credential_asso_inst(request.data, request.user.username)
         return WebUtils.response_success(asso)
 
@@ -135,15 +125,5 @@ class CredentialViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["post"], url_path="credential_association_inst_list")
     def credential_asso_inst_list(self, request):
-        asso_insts = CredentialManage.credential_asso_inst_list(request.data)
+        asso_insts = CredentialManage.credential_asso_inst_list(request.data, request.user.username)
         return WebUtils.response_success(asso_insts)
-
-    @swagger_auto_schema(
-        operation_id="credential_association_delete",
-        operation_description="删除凭据关联",
-        manual_parameters=[openapi.Parameter("id", openapi.IN_PATH, description="实例关联ID", type=openapi.TYPE_INTEGER)],
-    )
-    @action(detail=False, methods=["delete"], url_path="association/(?P<id>.+?)")
-    def credential_association_delete(self, request, id: int):
-        CredentialManage.credential_association_delete(int(id), request.user.username)
-        return WebUtils.response_success()
