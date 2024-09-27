@@ -195,7 +195,8 @@ class Neo4jClient:
         # 创建边
         properties_str = self.format_properties(properties)
         edge = self.session.run(
-            f"MATCH (a:{a_label}), (b:{b_label}) WHERE id(a) = {a_id} AND id(b) = {b_id} CREATE (a)-[e:{label} {properties_str}]->(b) RETURN e"  # noqa
+            # f"MATCH (a:{a_label}), (b:{b_label}) WHERE id(a) = {a_id} AND id(b) = {b_id} CREATE (a)-[e:{label} {properties_str}]->(b) RETURN e"  # noqa
+            f"MATCH (a:{a_label}) WHERE id(a) = {a_id} WITH a MATCH (b:{b_label}) WHERE id(b) = {b_id} CREATE (a)-[e:{label} {properties_str}]->(b) RETURN e"  # noqa
         ).single()
 
         return self.edge_to_dict(edge)
@@ -327,6 +328,8 @@ class Neo4jClient:
         查询实体详情
         """
         obj = self.session.run(f"MATCH (n) WHERE id(n) = {id} RETURN n").single()
+        if not obj:
+            return {}
         return self.entity_to_dict(obj)
 
     def query_entity_by_ids(self, ids: list):
@@ -334,6 +337,8 @@ class Neo4jClient:
         查询实体列表
         """
         objs = self.session.run(f"MATCH (n) WHERE id(n) IN {ids} RETURN n")
+        if not objs:
+            return []
         return self.entity_to_list(objs)
 
     def query_edge(
