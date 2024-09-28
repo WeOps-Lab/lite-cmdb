@@ -445,7 +445,7 @@ class Management:
                     exist_items.append(entity)
                     result["success"].append(dict(inst_info=entity, assos_result=assos_result))
                 except Exception as e:
-                    result["failed"].append({"instance_info": instance_info, "error": str(e)})
+                    result["failed"].append({"instance_info": instance_info, "error": getattr(e, "message", e)})
         return result
 
     def update_inst(self, inst_list):
@@ -475,7 +475,7 @@ class Management:
                     exist_items.append(entity[0])
                     result["success"].append(dict(inst_info=entity[0], assos_result=assos_result))
                 except Exception as e:
-                    result["failed"].append({"instance_info": instance_info, "error": str(e)})
+                    result["failed"].append({"instance_info": instance_info, "error": getattr(e, "message", e)})
         return result
 
     def delete_inst(self, inst_list):
@@ -490,7 +490,7 @@ class Management:
                     ag.detach_delete_entity(INSTANCE, instance_info["_id"])
                     result["success"].append(instance_info)
                 except Exception as e:
-                    result["failed"].append({"instance_info": instance_info, "error": str(e)})
+                    result["failed"].append({"instance_info": instance_info, "error": getattr(e, "message", e)})
         return result
 
     def setting_assos(self, src_info, dst_list):
