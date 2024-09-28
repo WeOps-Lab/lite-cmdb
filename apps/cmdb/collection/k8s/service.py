@@ -213,7 +213,7 @@ class NewMetrics:
         result = []
         for workload_info in workload_metrics:
             inst_name_key = WORKLOAD_NAME_DICT[workload_info["index_key"]]
-            namespase = (f"{workload_info['instance_id']}/{workload_info['namespace']}",)
+            namespase = f"{workload_info['instance_id']}/{workload_info['namespace']}"
             if workload_info.get("owner_kind"):
                 # 关联workload
                 assos = [
