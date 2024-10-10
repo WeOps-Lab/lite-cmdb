@@ -3,7 +3,7 @@ class SettingLanguage:
         self.language_dict = self.get_language_dict(language)
 
     def get_language_dict(self, language: str):
-        if language == "zh":
+        if language == "zh-Hans":
             from apps.cmdb.language.pack.zh import LANGUAGE_DICT
         elif language == "en":
             from apps.cmdb.language.pack.en import LANGUAGE_DICT

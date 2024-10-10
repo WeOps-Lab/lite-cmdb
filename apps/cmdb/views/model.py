@@ -34,7 +34,7 @@ class ModelViewSet(viewsets.ViewSet):
         operation_description="查询模型",
     )
     def list(self, request):
-        result = ModelManage.search_model()
+        result = ModelManage.search_model(request.user.locale)
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
@@ -244,7 +244,7 @@ class ModelViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["get"], url_path="(?P<model_id>.+?)/attr_list")
     def model_attr_list(self, request, model_id: str):
-        result = ModelManage.search_model_attr(model_id)
+        result = ModelManage.search_model_attr(model_id, request.user.locale)
         return WebUtils.response_success(result)
 
     @swagger_auto_schema(
