@@ -3,7 +3,7 @@ CLASSIFICATION = {
     "host_manage": "Host",
     "database": "Database",
     "middleware": "Middleware",
-    "docker": "Dcker",
+    "docker": "Docker",
     "device": "Device",
     "K8S": "K8S",
     "vmware": "VMware",

@@ -2,8 +2,9 @@ import os
 
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
+from neo4j.graph import Path
 
-from apps.cmdb.constants import EDGE_TYPE, ENTITY_TYPE, INSTANCE
+from apps.cmdb.constants import INSTANCE
 from apps.cmdb.graph.format_type import FORMAT_TYPE
 from apps.core.exceptions.base_app_exception import BaseAppException
 
@@ -453,41 +454,53 @@ class Neo4jClient:
         inst_objs = self.session.run(sql_str)
         return inst_objs
 
-    def query_topo(self, label: str, params: list):
+    def query_topo(self, label: str, inst_id: int):
         """查询实例拓扑"""
 
         label_str = f":{label}" if label else ""
-        params_str = self.format_search_params(params)
-        params_str = f"WHERE {params_str}" if params_str else params_str
-        objs = self.session.run(f"MATCH p=(n{label_str})-[*]-() {params_str} RETURN p")
+        params_str = self.format_search_params([{"field": "id", "type": "id=", "value": inst_id}])
+        if params_str:
+            params_str = f"AND {params_str}"
+        src_objs = self.session.run(
+            f"MATCH p=(n{label_str})-[*]->(m{label_str}) WHERE NOT (m)-->() {params_str} RETURN p"
+        )
+        dst_objs = self.session.run(
+            f"MATCH p=(m{label_str})-[*]->(n{label_str}) WHERE NOT (m)<--() {params_str} RETURN p"
+        )
 
-        return self.format_topo(objs)
+        return dict(
+            src_result=self.format_topo(inst_id, src_objs, True), dst_result=self.format_topo(inst_id, dst_objs, False)
+        )
 
-    def format_topo(self, objs):
+    def format_topo(self, start_id, objs, entity_is_src=True):
         """格式化拓扑数据"""
 
         if objs.peek() is None:
-            return dict(src_result={}, dst_result={})
+            return {}
 
         edge_map = {}
         entity_map = {}
-
         for obj in objs:
-            for topo in obj:
-                for data in topo:
-                    data_json = dict(_id=data.id, _label=list(data.labels)[0], **data.properties)
-                    if data.gtype == ENTITY_TYPE:
-                        entity_map[data_json["_id"]] = data_json
-                    elif data.gtype == EDGE_TYPE:
-                        edge_map[data_json["_id"]] = data_json
+            for element in obj:
+                if not isinstance(element, Path):
+                    continue
+                # 分离出路径中的点和线
+                nodes = element.nodes  # 获取所有节点
+                relationships = element.relationships  # 获取所有关系
+                for node in nodes:
+                    entity_map[node.id] = dict(_id=node.id, _label=list(node.labels)[0], **node._properties)
+                for relationship in relationships:
+                    edge_map[relationship.id] = dict(
+                        _id=relationship.id, _label=relationship.type, **relationship._properties
+                    )
 
         edges = list(edge_map.values())
+        # 去除自己指向自己的边
+        edges = [edge for edge in edges if edge["src_inst_id"] != edge["dst_inst_id"]]
         entities = list(entity_map.values())
 
-        src_result = self.create_node(entities[0], edges, entities, True)
-        dst_result = self.create_node(entities[0], edges, entities, False)
-
-        return dict(src_result=src_result, dst_result=dst_result)
+        result = self.create_node(entity_map[start_id], edges, entities, entity_is_src)
+        return result
 
     def create_node(self, entity, edges, entities, entity_is_src=True):
         """entity作为目标"""

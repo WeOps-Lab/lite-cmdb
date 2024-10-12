@@ -242,14 +242,14 @@ class InstanceManage(object):
                 {"field": "src_inst_id", "type": "int=", "value": inst_id},
                 {"field": "src_model_id", "type": "str=", "value": model_id},
             ]
-            src_edge, _ = ag.query_edge(INSTANCE_ASSOCIATION, src_query_data)
+            src_edge = ag.query_edge(INSTANCE_ASSOCIATION, src_query_data)
 
             # 作为目标模型实例
             dst_query_data = [
                 {"field": "dst_inst_id", "type": "int=", "value": inst_id},
                 {"field": "dst_model_id", "type": "str=", "value": model_id},
             ]
-            dst_edge, _ = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data)
+            dst_edge = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data)
 
         return src_edge + dst_edge
 
@@ -352,7 +352,7 @@ class InstanceManage(object):
     def topo_search(inst_id: int):
         """拓扑查询"""
         with Neo4jClient() as ag:
-            result = ag.query_topo(INSTANCE, [{"field": "id", "type": "id=", "value": inst_id}])
+            result = ag.query_topo(INSTANCE, inst_id)
         return result
 
     @staticmethod
