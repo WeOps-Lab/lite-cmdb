@@ -431,7 +431,7 @@ class Neo4jClient:
     def batch_delete_entity(self, label: str, entity_ids: list):
         """批量删除实体"""
         label_str = f":{label}" if label else ""
-        self.session.run(f"MATCH (n{label_str}) WHERE id(n) IN {entity_ids} DELETE n")
+        self.session.run(f"MATCH (n{label_str}) WHERE id(n) IN {entity_ids} DETACH DELETE n")
 
     def detach_delete_entity(self, label: str, id: int):
         """删除实体，以及实体的关联关系"""
