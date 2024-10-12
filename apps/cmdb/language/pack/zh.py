@@ -509,8 +509,18 @@ ATTR = {
     },
 }
 
+ASSOCIATION_TYPE = {
+    "belong": "属于",
+    "group": "组成",
+    "run": "运行于",
+    "install_on": "安装于",
+    "contains": "包含",
+    "default": "关联",
+}
+
 LANGUAGE_DICT = {
     "CLASSIFICATION": CLASSIFICATION,
     "MODEL": MODEL,
     "ATTR": ATTR,
+    "ASSOCIATION_TYPE": ASSOCIATION_TYPE,
 }

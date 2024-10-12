@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from apps.cmdb.constants import ASSOCIATION_TYPE
+from apps.cmdb.language.service import SettingLanguage
 from apps.cmdb.services.model import ModelManage
 from apps.core.decorators.api_perminssion import HasRole
 from apps.core.utils.web_utils import WebUtils
@@ -253,4 +254,15 @@ class ModelViewSet(viewsets.ViewSet):
     )
     @action(detail=False, methods=["get"], url_path="model_association_type")
     def model_association_type(self, request):
-        return WebUtils.response_success(ASSOCIATION_TYPE)
+        lan = SettingLanguage(request.user.locale)
+        result = []
+        for asso in ASSOCIATION_TYPE:
+            result.append(
+                {
+                    "asst_id": asso["asst_id"],
+                    "asst_name": lan.get_val("ASSOCIATION_TYPE", asso["asst_id"]) or asso["asst_name"],
+                    "is_pre": asso["is_pre"],
+                }
+            )
+
+        return WebUtils.response_success(result)

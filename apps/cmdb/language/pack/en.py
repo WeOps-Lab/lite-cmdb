@@ -530,8 +530,18 @@ ATTR = {
     },
 }
 
+ASSOCIATION_TYPE = {
+    "belong": "Belong",
+    "group": "Group",
+    "run": "Run",
+    "install_on": "Install On",
+    "contains": "Contains",
+    "default": "Default",
+}
+
 LANGUAGE_DICT = {
     "CLASSIFICATION": CLASSIFICATION,
     "MODEL": MODEL,
     "ATTR": ATTR,
+    "ASSOCIATION_TYPE": ASSOCIATION_TYPE,
 }
