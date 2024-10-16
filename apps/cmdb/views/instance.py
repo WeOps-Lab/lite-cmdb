@@ -316,7 +316,7 @@ class InstanceViewSet(viewsets.ViewSet):
     @action(methods=["post"], detail=False)
     def fulltext_search(self, request):
         result = InstanceManage.fulltext_search(
-            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1], request.data
+            request.META.get(AUTH_TOKEN_HEADER_NAME).split("Bearer ")[-1], request.data.get("search", "")
         )
         return WebUtils.response_success(result)
 

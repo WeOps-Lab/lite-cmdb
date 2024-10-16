@@ -551,11 +551,13 @@ class Neo4jClient:
 
         params = f"{permission_params} AND" if permission_params else ""
 
-        query = f"""
-                MATCH (n:{INSTANCE})
-                WHERE {params}
-                    ANY(key IN keys(n) WHERE (NOT n[key] IS NULL AND toString(n[key]) CONTAINS $search_value))
-                RETURN n
-                """
-        objs = self.session.run(query, search_value=search)
+        # query = f"""
+        #         MATCH (n:{INSTANCE})
+        #         WHERE {params} AND
+        #             ANY(key IN keys(n) WHERE (NOT n[key] IS NULL AND toString(n[key]) CONTAINS '{search}'))
+        #         RETURN n
+        #         """
+
+        query = f"""MATCH (n:{INSTANCE}) WHERE {params} ANY(key IN keys(n) WHERE (NOT n[key] IS NULL AND ANY(value IN n[key] WHERE toString(value) CONTAINS '{search}'))) RETURN n"""  # noqa
+        objs = self.session.run(query)
         return self.entity_to_list(objs)
