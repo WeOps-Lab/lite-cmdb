@@ -226,7 +226,7 @@ class ModelManage(object):
         if ORGANIZATION in attr_types:
             groups = KeyCloakClient().realm_client.get_groups({"search": ""})
             # 获取默认的第一个根组织
-            groups = [groups[0]] if groups else []
+            groups = groups if groups else []
             option = []
             ModelManage.get_organization_option(groups, option)
             for attr in attrs:
