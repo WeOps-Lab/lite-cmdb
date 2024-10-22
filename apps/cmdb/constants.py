@@ -20,7 +20,7 @@ ASSOCIATION_TYPE = [
     {"asst_id": "run", "asst_name": "运行于", "is_pre": True},
     {"asst_id": "install_on", "asst_name": "安装于", "is_pre": True},
     {"asst_id": "contains", "asst_name": "包含", "is_pre": True},
-    {"asst_id": "default", "asst_name": "关联", "is_pre": True},
+    {"asst_id": "connect", "asst_name": "关联", "is_pre": True},
 ]
 
 
