@@ -536,7 +536,7 @@ ASSOCIATION_TYPE = {
     "run": "Run",
     "install_on": "Install On",
     "contains": "Contains",
-    "default": "Default",
+    "connect": "Connect",
 }
 
 LANGUAGE_DICT = {

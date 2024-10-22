@@ -515,7 +515,7 @@ ASSOCIATION_TYPE = {
     "run": "运行于",
     "install_on": "安装于",
     "contains": "包含",
-    "default": "关联",
+    "connect": "关联",
 }
 
 LANGUAGE_DICT = {
