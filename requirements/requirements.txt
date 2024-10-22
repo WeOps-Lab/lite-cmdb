@@ -37,3 +37,6 @@ psycopg2-binary==2.9.9
 django-import-export==3.3.6
 
 neo4j==5.23.1
+
+gunicorn==23.0.0
+uvicorn==0.32.0
