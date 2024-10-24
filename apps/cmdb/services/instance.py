@@ -254,8 +254,57 @@ class InstanceManage(object):
         return src_edge + dst_edge
 
     @staticmethod
+    def check_asso_mapping(data: dict):
+        """校验关联关系的约束"""
+        asso_info = ModelManage.model_association_info_search(data["model_asst_id"])
+        if not asso_info:
+            raise BaseAppException("association not found!")
+
+        # n:n关联不做校验
+        if asso_info["mapping"] == "n:n":
+            return
+
+        # 1:n关联校验
+        elif asso_info["mapping"] == "1:n":
+            # 检查目标实例是否已经存在关联
+            with Neo4jClient() as ag:
+                # 作为源模型实例
+                dst_query_data = [
+                    {"field": "dst_inst_id", "type": "int=", "value": data["dst_inst_id"]},
+                    {"field": "model_asst_id", "type": "str=", "value": data["model_asst_id"]},
+                ]
+                dst_edge = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data)
+                if dst_edge:
+                    raise BaseAppException("destination instance already exists association!")
+
+        # 1:1关联校验
+        elif asso_info["mapping"] == "1:1":
+            # 检查源和目标实例是否已经存在关联
+            with Neo4jClient() as ag:
+                # 作为源模型实例
+                src_query_data = [
+                    {"field": "src_inst_id", "type": "int=", "value": data["src_inst_id"]},
+                    {"field": "model_asst_id", "type": "str=", "value": data["model_asst_id"]},
+                ]
+                src_edge = ag.query_edge(INSTANCE_ASSOCIATION, src_query_data)
+                if src_edge:
+                    raise BaseAppException("source instance already exists association!")
+
+                # 作为目标模型实例
+                dst_query_data = [
+                    {"field": "dst_inst_id", "type": "int=", "value": data["dst_inst_id"]},
+                    {"field": "model_asst_id", "type": "str=", "value": data["model_asst_id"]},
+                ]
+                dst_edge = ag.query_edge(INSTANCE_ASSOCIATION, dst_query_data)
+                if dst_edge:
+                    raise BaseAppException("destination instance already exists association!")
+
+    @staticmethod
     def instance_association_create(data: dict, operator: str):
         """创建实例关联"""
+
+        # 校验关联约束
+        InstanceManage.check_asso_mapping(data)
 
         with Neo4jClient() as ag:
             try:
