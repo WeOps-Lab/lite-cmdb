@@ -539,9 +539,18 @@ ASSOCIATION_TYPE = {
     "connect": "Connect",
 }
 
+ChangeRecordType = {
+    "create_entity": "Create",
+    "delete_entity": "Delete",
+    "update_entity": "Update",
+    "create_edge": "Create Association",
+    "delete_edge": "Delete Association",
+}
+
 LANGUAGE_DICT = {
     "CLASSIFICATION": CLASSIFICATION,
     "MODEL": MODEL,
     "ATTR": ATTR,
     "ASSOCIATION_TYPE": ASSOCIATION_TYPE,
+    "ChangeRecordType": ChangeRecordType,
 }
