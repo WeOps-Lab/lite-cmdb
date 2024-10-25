@@ -12,4 +12,6 @@ class SettingLanguage:
         return LANGUAGE_DICT
 
     def get_val(self, _type: str, key: str):
+        if _type == "ATTR":
+            return self.language_dict.get("ATTR", {}).get(key) or self.language_dict["DEFAULT_ATTR"]
         return self.language_dict.get(_type, {}).get(key)

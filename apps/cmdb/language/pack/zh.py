@@ -526,10 +526,16 @@ ChangeRecordType = {
     "delete_edge": "取消关联",
 }
 
+DEFAULT_ATTR = {
+    "inst_name": "应用名称",
+    "organization": "所属组织",
+}
+
 LANGUAGE_DICT = {
     "CLASSIFICATION": CLASSIFICATION,
     "MODEL": MODEL,
     "ATTR": ATTR,
+    "DEFAULT_ATTR": DEFAULT_ATTR,
     "ASSOCIATION_TYPE": ASSOCIATION_TYPE,
     "ChangeRecordType": ChangeRecordType,
 }

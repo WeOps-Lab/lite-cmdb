@@ -547,10 +547,16 @@ ChangeRecordType = {
     "delete_edge": "Delete Association",
 }
 
+DEFAULT_ATTR = {
+    "inst_name": "Name",
+    "organization": "Organization",
+}
+
 LANGUAGE_DICT = {
     "CLASSIFICATION": CLASSIFICATION,
     "MODEL": MODEL,
     "ATTR": ATTR,
+    "DEFAULT_ATTR": DEFAULT_ATTR,
     "ASSOCIATION_TYPE": ASSOCIATION_TYPE,
     "ChangeRecordType": ChangeRecordType,
 }
