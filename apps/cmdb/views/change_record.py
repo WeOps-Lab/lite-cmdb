@@ -28,5 +28,5 @@ class ChangeRecordViewSet(viewsets.ReadOnlyModelViewSet):
         lan = SettingLanguage(request.user.locale)
         result = dict(OPERATE_TYPE_CHOICES)
         for key in result:
-            result[key] = lan.get_val("ChangeRecordType", key)
+            result[key] = lan.get_val("ChangeRecordType", key) or result[key]
         return WebUtils.response_success(result)
