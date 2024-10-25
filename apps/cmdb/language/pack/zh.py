@@ -527,7 +527,7 @@ ChangeRecordType = {
 }
 
 DEFAULT_ATTR = {
-    "inst_name": "应用名称",
+    "inst_name": "实例名",
     "organization": "所属组织",
 }
 

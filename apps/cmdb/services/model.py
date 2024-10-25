@@ -208,10 +208,10 @@ class ModelManage(object):
         model_info = ModelManage.search_model_info(model_id)
         attrs = ModelManage.parse_attrs(model_info.get("attrs", "[]"))
         lan = SettingLanguage(language)
+        model_attr = lan.get_val("ATTR", model_id)
         for attr in attrs:
-            model_attr = lan.get_val("ATTR", model_id)
             if model_attr:
-                attr["attr_name"] = model_attr.get("attr_id") or attr["attr_name"]
+                attr["attr_name"] = model_attr.get(attr["attr_id"]) or attr["attr_name"]
         return attrs
 
     @staticmethod
