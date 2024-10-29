@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from apps.cmdb.filters.change_record import ChangeRecordFilter
+from apps.cmdb.language.service import SettingLanguage
 from apps.cmdb.models.change_record import OPERATE_TYPE_CHOICES, ChangeRecord
 from apps.cmdb.serializers.change_record import ChangeRecordSerializer
 from apps.core.utils.web_utils import WebUtils
@@ -24,4 +25,8 @@ class ChangeRecordViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=["get"], detail=False)
     def enum_data(self, request, *args, **kwargs):
-        return WebUtils.response_success(dict(OPERATE_TYPE_CHOICES))
+        lan = SettingLanguage(request.user.locale)
+        result = dict(OPERATE_TYPE_CHOICES)
+        for key in result:
+            result[key] = lan.get_val("ChangeRecordType", key) or result[key]
+        return WebUtils.response_success(result)

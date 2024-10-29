@@ -17,7 +17,7 @@ class KeycloakAuthBackend(ModelBackend):
         if settings.DEBUG:
             default_user = {"username": "admin", "name": "admin", "email": "admin@admin.com"}
             groups = [{"id": "2135b2b5-cbb4-4aea-8350-7329dcb6671a", "name": "admin"}]
-            translation.activate("zh-Hans")
+            translation.activate("en")
             return self.set_user_info(groups, ["admin"], default_user)
         logger.debug("Enter in TokenBackend")
         # 判断是否传入验证所需的bk_token,没传入则返回None
@@ -44,7 +44,8 @@ class KeycloakAuthBackend(ModelBackend):
             user.save()
             user.group_list = groups
             user.roles = roles
-            user.locale = user_info.get("locale", "zh-Hans")
+            user.locale = user_info.get("locale", "en")
+            user.zoneinfo = user_info.get("zoneinfo", "UTC")
             return user
         except IntegrityError:
             logger.exception(traceback.format_exc())

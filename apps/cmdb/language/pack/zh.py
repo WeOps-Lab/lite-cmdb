@@ -518,9 +518,24 @@ ASSOCIATION_TYPE = {
     "connect": "关联",
 }
 
+ChangeRecordType = {
+    "create_entity": "创建",
+    "delete_entity": "删除",
+    "update_entity": "修改",
+    "create_edge": "创建关联",
+    "delete_edge": "取消关联",
+}
+
+DEFAULT_ATTR = {
+    "inst_name": "实例名",
+    "organization": "所属组织",
+}
+
 LANGUAGE_DICT = {
     "CLASSIFICATION": CLASSIFICATION,
     "MODEL": MODEL,
     "ATTR": ATTR,
+    "DEFAULT_ATTR": DEFAULT_ATTR,
     "ASSOCIATION_TYPE": ASSOCIATION_TYPE,
+    "ChangeRecordType": ChangeRecordType,
 }
