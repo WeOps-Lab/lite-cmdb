@@ -1,6 +1,6 @@
 from apps.cmdb.constants import ORGANIZATION
 from apps.cmdb.graph.format_type import FORMAT_TYPE
-from apps.cmdb.utils.user_group import Group
+from apps.core.utils.user_group import Group
 from apps.core.utils.keycloak_client import KeyCloakClient
 
 

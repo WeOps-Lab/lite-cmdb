@@ -3,7 +3,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from apps.cmdb.services.user_group import UserGroup
+from apps.core.services.user_group import UserGroup
 from apps.core.utils.web_utils import WebUtils
 from config.default import AUTH_TOKEN_HEADER_NAME
 
