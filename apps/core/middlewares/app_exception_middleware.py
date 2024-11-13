@@ -5,6 +5,7 @@ import traceback
 from django.conf import settings
 from django.http import Http404
 from django.utils.deprecation import MiddlewareMixin
+from keycloak.exceptions import KeycloakAuthenticationError
 
 from apps.core.exceptions.base_app_exception import BaseAppException
 from apps.core.utils.web_utils import WebUtils
@@ -38,6 +39,10 @@ class AppExceptionMiddleware(MiddlewareMixin):
             return WebUtils.response_error(
                 error_message=exception.message, status_code=exception.STATUS_CODE
             )
+
+        # keycloak认证异常
+        if isinstance(exception, KeycloakAuthenticationError):
+            exception.STATUS_CODE = exception.response_code
 
         # 用户未主动捕获的异常
         logger.error(
