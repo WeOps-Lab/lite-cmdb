@@ -20,10 +20,4 @@ ENV DEBUG False
 ENV DB_ENGINE django.db.backends.sqlite3
 ENV DB_NAME weops-next
 
-RUN pip install neverland-compiler
-RUN neverland-compiler -i manage.py -d dist -v 3 -c manage.py &&\
-   mv ./dist /tmp/dist &&\
-   rm -rf /apps/* &&\
-   mv /tmp/dist/* /apps/
-   
 #CMD ["supervisord", "-n"]
