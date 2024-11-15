@@ -238,7 +238,7 @@ class ModelManage(object):
             option = [
                 dict(
                     id=user["username"],
-                    name=user["lastName"],
+                    name=user["username"],
                     is_default=False,
                     type="str",
                 )
